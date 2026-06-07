@@ -1,28 +1,28 @@
-#include <stdio.h>
 #include <pthread.h>
+#include <stdio.h>
+#include <unistd.h>
 
-int value = 0;
 
-void *my_function(void *args)
-{
-    printf("i'm thread %d\n",value);
-    for(int i=0; i<50000;i++){
-        (*((int *) args))++;
-        printf("the value of value is %d\n",*(int *)args);
+void *greeting(void *args){
+    int *x = (int *) args;
+    for (int i=0; i<2;i++){
+        (*x)++;
+        printf("%d\n", *(int *)args);
+        sleep(2);
     }
-    value+=1;
-    return NULL;
+    return args;
 }
 
 int main(){
-    pthread_t thread;
-    pthread_t thread1;
-    int a=0;
+    pthread_t mythread;
+    int x = 0;
 
-    pthread_create(&thread,NULL,my_function,&a);
-    pthread_create(&thread1,NULL,my_function,&a);
+    int val = pthread_create(&mythread, NULL, greeting, &x);
+    
+    printf("finale: %d\n", x);
+    pthread_join(mythread, NULL);
 
-    pthread_join(thread,NULL);
-    pthread_join(thread1,NULL);
+   
+
     return 0;
 }
