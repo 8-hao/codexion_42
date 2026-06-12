@@ -23,7 +23,7 @@ int main(int argc, char **argv)
         printf("Error: Expected 8 arguments, but received %d.\n", argc-1);
         return (1);
     }
-    ptr = parser(argc, argv);
+    ptr = parser(argc-1, argv);
     if (ptr == NULL)
         return (1);
     while(ptr[i] != -1)
