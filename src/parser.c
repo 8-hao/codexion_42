@@ -24,6 +24,16 @@ static int ft_isdigit(char *num){
     return (1);
 }
 
+static int ft_scheduler(char *value)
+{
+    if (strlen(value)!= 3 && strlen(value)!= 4)
+    {
+        printf("The scheduler value must be exactly one of: fifo or edf.\n");
+        return 1;
+    }
+
+}
+
 int *parser(int argc, char **argv)
 {
     int i;
@@ -37,9 +47,16 @@ int *parser(int argc, char **argv)
         if (ft_isdigit(argv[i]) == -1)
             return (NULL);
 
-        int a = atoi(argv[i]);
+        a = atoi(argv[i]);
+        if (i != 7 && a == 0){
+            printf("0 is not a valid integer value (max: 2147483647)\n");
+            return (NULL);
+        }
         data[i-1] = a;
         i++;
+    }
+    if (ft_scheduler(argv[i])){
+        return (NULL);
     }
     data[i-1] = -1;
     return (data);
