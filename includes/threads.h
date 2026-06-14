@@ -7,11 +7,23 @@
 #include <string.h>
 #include <pthread.h>
 #include <unistd.h>
+#include <sys/time.h>
+
+
+typedef struct p{
+    int init_time;
+}Program;
 
 typedef struct coder{
     int id;
+    int num_of_compiles;
+    int time_to_compile;
+    int dongle_cooldown;
+    int time_to_debug;
+    int time_to_refactor;
     pthread_mutex_t *left_d;
     pthread_mutex_t *right_d;
+    Program program;
 
 }Coder;
 
