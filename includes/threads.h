@@ -11,7 +11,7 @@
 
 
 typedef struct p{
-    int init_time;
+    long long init_time;
 }Program;
 
 typedef struct coder{

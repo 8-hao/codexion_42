@@ -1,15 +1,13 @@
 #include "../includes/threads.h"
 
-static int ft_time(int initial_time){
+static long long ft_time(long long initial_time)
+{
     struct timeval d;
-    int time;
+    long long time;
 
     gettimeofday(&d, NULL);
     time = d.tv_sec * 1000 + d.tv_usec / 1000;
-    printf("%d %d\n", initial_time, time);
     return time - initial_time;
-
-
 }
 
 void    *myfunction(void *coder)
@@ -21,18 +19,18 @@ void    *myfunction(void *coder)
     i  = 0;
     while (i < c ->num_of_compiles){
         pthread_mutex_lock(c->left_d);
-        printf("%d %d has taken a dongle\n", ft_time(c->program.init_time) ,c->id);
+        printf("%lld %d has taken a dongle\n", ft_time(c->program.init_time) ,c->id);
         pthread_mutex_lock(c->right_d);
-        printf("%d %d has taken a dongle\n", ft_time(c->program.init_time), c->id);
-        printf("%d %d is compiling\n", ft_time(c->program.init_time),c->id);
+        printf("%lld %d has taken a dongle\n", ft_time(c->program.init_time), c->id);
+        printf("%lld %d is compiling\n", ft_time(c->program.init_time),c->id);
         usleep(c->time_to_compile * 1000);
         usleep(c->dongle_cooldown * 1000);
         pthread_mutex_unlock(c->left_d);
         usleep(c->dongle_cooldown * 1000);
         pthread_mutex_unlock(c->right_d);
-        printf("%d %d is debugging\n", ft_time(c->program.init_time),c->id);
+        printf("%lld %d is debugging\n", ft_time(c->program.init_time),c->id);
         usleep(c->time_to_debug * 1000);
-        printf("%d %d is refactoring\n", ft_time(c->program.init_time),c->id);
+        printf("%lld %d is refactoring\n", ft_time(c->program.init_time),c->id);
         usleep(c->time_to_refactor * 1000);
         i++;
     }
@@ -80,6 +78,7 @@ void ft_threads(int *data)
     p.init_time = g.tv_sec * 1000 + g.tv_usec / 1000;
     while(i < data[0])
     {
+        coders[i].program = p;
         pthread_create(&id_arr[i], NULL, myfunction, &coders[i]);
         i++;
     }
