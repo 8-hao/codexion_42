@@ -98,13 +98,23 @@ void    *myfunction(void *coder)
             return NULL;
         }
         pthread_mutex_lock(c->left_d);
+        if (c->stop){
+            pthread_mutex_unlock(c->left_d);
+            return NULL;
+        }
         printf("%lld %d has taken a dongle\n", ft_time()-c->init_time ,c->id);
         pthread_mutex_lock(c->right_d);
+         if (c->stop){
+            pthread_mutex_unlock(c->left_d);
+            pthread_mutex_unlock(c->right_d);
+            return NULL;
+        }
         printf("%lld %d has taken a dongle\n", ft_time()-c->init_time , c->id);
         printf("%lld %d is compiling\n", ft_time()-c->init_time ,c->id);
         r = ft_smartsleep(c->time_to_compile, c);
         if (r == 0){
-            printf("coder %d is stopped", c->id);
+            pthread_mutex_unlock(c->left_d);
+            pthread_mutex_unlock(c->right_d);
             return NULL;
         }
         usleep(c->dongle_cooldown * 1000);
@@ -115,13 +125,11 @@ void    *myfunction(void *coder)
         r = ft_smartsleep(c->time_to_debug, c);
         if (r == 0)
         {
-            printf("coder %d is stopped", c->id);
             return NULL;
         }
         printf("%lld %d is refactoring\n",ft_time()-c->init_time ,c->id);
         r = ft_smartsleep(c->time_to_refactor, c);
         if (r == 0){
-            printf("coder %d is stopped", c->id);
             return NULL;
         }
         i++;
