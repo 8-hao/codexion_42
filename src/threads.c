@@ -209,16 +209,16 @@ void ft_threads(int *data)
     pthread_join(id_monitor, NULL);
 }
 
-
-
-// Step 3 — Add the monitor thread
-// Add a dedicated thread that loops every ~1ms, checks if any 
-// coder exceeded time_to_burnout, prints the burnout message and sets the stop flag. 
-// Also check if all coders reached number_of_compiles_required. Every coder thread 
-// must check this stop flag at the start of each cycle.
-
 // Step 4 — Add dongle cooldown
 // Once basic flow works, add cooldown: when a dongle is released, 
 // record its release timestamp. When a coder tries to acquire it, 
 // if cooldown hasn't elapsed, the thread waits. Use pthread_cond_timedwait 
 // for this rather than busy-waiting.
+
+
+
+// Step 5 — Add FIFO/EDF scheduling
+// Now add the priority queue. Each dongle needs a waiting queue. When a coder requests a dongle, it enqueues itself with either arrival time 
+// (FIFO) or deadline (EDF = last_compile_start + time_to_burnout). 
+// The dongle grants itself to whoever is at the front of the queue when it becomes available. This is the hardest part — do it last 
+// when everything else is solid.
