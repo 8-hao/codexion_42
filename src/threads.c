@@ -17,21 +17,24 @@ void *monitor_func(void *monitor)
     long long time_to_burnout;
     long long current_time;
     int i;
+    int counter;
+    int finished;
 
     m = (Monitor *) monitor;
     i = 0;
+    counter = 0;
+    finished =0;
     while(1)
     {
         while(i < m->num_of_coders)
         {   
             pthread_mutex_lock(m->coders[i].check_time);
             current_time = ft_time();
-            last_compile_start = m->coders[i]. last_compile_start;
+            last_compile_start = m->coders[i].last_compile_start;
             time_to_burnout = m->coders[i].time_to_burnout;
             pthread_mutex_unlock(m->coders[i].check_time);
-            if (current_time - last_compile_start > time_to_burnout)
+            if (current_time - last_compile_start > time_to_burnout &&  m->coders[i].finish == 0)
             {
-                printf("**** ct: %lld, lcs:%lld , ttb: %lld\n", current_time, last_compile_start, time_to_burnout);
                 printf("%lld %d is burned out",(current_time - m->coders[i].init_time), m->coders[i].id);
                 i = 0;
                 while(i < m->num_of_coders)
@@ -41,8 +44,15 @@ void *monitor_func(void *monitor)
                 }
                 return NULL;
             }
+            if (m->coders[i].finish == 1){
+                finished++;
+                if(m->coders[i].compile_count == m->coders[i].num_of_compiles_required)
+                    counter++;
+            }
             i++;
         }
+        if (finished == counter)
+            return NULL;
         i = 0;
         usleep(1000);
     }
@@ -58,9 +68,11 @@ int ft_smartsleep(int time_to_sleep, Coder *c)
     {
         if (c->stop)
             return 0;
+        pthread_mutex_lock(c->check_time);
         c->last_compile_start = ft_time();
-        current_time += 100;
-        usleep(100);
+        pthread_mutex_unlock(c->check_time);
+        current_time += 2;
+        usleep(2);
     }
     return 1;
 }
@@ -75,6 +87,9 @@ void    *myfunction(void *coder)
     i  = 0;
     while (i < c ->num_of_compiles_required)
     {
+        pthread_mutex_lock(c->check_time);
+        c->last_compile_start = ft_time();
+        pthread_mutex_unlock(c->check_time);
         if (c->stop)
             return NULL;
         pthread_mutex_lock(c->left_d);
@@ -99,7 +114,9 @@ void    *myfunction(void *coder)
             return NULL;
         i++;
         c->compile_count = i;
+        pthread_mutex_lock(c->check_time);
         c->last_compile_start = ft_time();
+        pthread_mutex_unlock(c->check_time);
     }
     c->finish = 1;
     return NULL;
