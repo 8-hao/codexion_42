@@ -33,9 +33,9 @@ void *monitor_func(void *monitor)
             last_compile_start = m->coders[i].last_compile_start;
             time_to_burnout = m->coders[i].time_to_burnout;
             pthread_mutex_unlock(m->coders[i].check_time);
-            if (current_time - last_compile_start > time_to_burnout &&  m->coders[i].finish == 0)
+            if (current_time - last_compile_start >= time_to_burnout &&  m->coders[i].finish == 0)
             {
-                printf("%lld %d is burned out",(current_time - m->coders[i].init_time), m->coders[i].id);
+                printf("%lld %d is burned out\n",(current_time - m->coders[i].init_time), m->coders[i].id);
                 i = 0;
                 while(i < m->num_of_coders)
                 {
@@ -51,9 +51,12 @@ void *monitor_func(void *monitor)
             }
             i++;
         }
-        if (finished == counter)
-            return NULL;
+        if (finished == m->num_of_coders)
+            if (finished == counter)
+                return NULL;
         i = 0;
+        finished = 0;
+        counter = 0;
         usleep(1000);
     }
     return NULL;
@@ -71,8 +74,8 @@ int ft_smartsleep(int time_to_sleep, Coder *c)
         pthread_mutex_lock(c->check_time);
         c->last_compile_start = ft_time();
         pthread_mutex_unlock(c->check_time);
-        current_time += 2;
-        usleep(2);
+        current_time += 500;
+        usleep(500);
     }
     return 1;
 }
@@ -90,16 +93,20 @@ void    *myfunction(void *coder)
         pthread_mutex_lock(c->check_time);
         c->last_compile_start = ft_time();
         pthread_mutex_unlock(c->check_time);
-        if (c->stop)
+        if (c->stop){
+            printf("coder %d is stopped", c->id);
             return NULL;
+        }
         pthread_mutex_lock(c->left_d);
         printf("%lld %d has taken a dongle\n", ft_time()-c->init_time ,c->id);
         pthread_mutex_lock(c->right_d);
         printf("%lld %d has taken a dongle\n", ft_time()-c->init_time , c->id);
         printf("%lld %d is compiling\n", ft_time()-c->init_time ,c->id);
         r = ft_smartsleep(c->time_to_compile, c);
-        if (r == 0)
+        if (r == 0){
+            printf("coder %d is stopped", c->id);
             return NULL;
+        }
         usleep(c->dongle_cooldown * 1000);
         pthread_mutex_unlock(c->left_d);
         usleep(c->dongle_cooldown * 1000);
@@ -107,16 +114,18 @@ void    *myfunction(void *coder)
         printf("%lld %d is debugging\n", ft_time()-c->init_time ,c->id);
         r = ft_smartsleep(c->time_to_debug, c);
         if (r == 0)
+        {
+            printf("coder %d is stopped", c->id);
             return NULL;
+        }
         printf("%lld %d is refactoring\n",ft_time()-c->init_time ,c->id);
         r = ft_smartsleep(c->time_to_refactor, c);
-        if (r == 0)
+        if (r == 0){
+            printf("coder %d is stopped", c->id);
             return NULL;
+        }
         i++;
         c->compile_count = i;
-        pthread_mutex_lock(c->check_time);
-        c->last_compile_start = ft_time();
-        pthread_mutex_unlock(c->check_time);
     }
     c->finish = 1;
     return NULL;
