@@ -27,9 +27,14 @@ typedef struct coder{
     pthread_mutex_t *left_d;
     pthread_mutex_t *right_d;
 
+    pthread_mutex_t *check_time;
+
     int compile_count;
     long long last_compile_start;
     long long init_time;
+
+    int finish;
+    int stop;
 
 }Coder;
 
@@ -38,12 +43,11 @@ typedef struct monitor{
     Coder *coders;
     pthread_mutex_t *dongles;
     pthread_t *threads;
-
-
 }Monitor;
 
 int *parser(int argc, char **argv);
 void ft_threads(int *data);
+int ft_smartsleep(int time_to_sleep, Coder *c);
 
 
 #endif
