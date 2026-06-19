@@ -10,13 +10,6 @@
 #include <sys/time.h>
 
 
-// typedef struct monitor{
-//     int num_of_coders;
-//     Coder *coders;
-//     pthread_mutex_t *dongles;
-//     pthread_t *threads;
-// }Monitor;
-
 typedef struct dongle{
     pthread_mutex_t mutex_v;
     long long release_time;
@@ -47,6 +40,13 @@ typedef struct coder{
     int stop;
 
 }Coder;
+
+typedef struct monitor{
+    int num_of_coders;
+    Coder *coders;
+    Dongle *dongles;
+    pthread_t *threads;
+}Monitor;
 
 int *parser(int argc, char **argv);
 void ft_threads(int *data);
