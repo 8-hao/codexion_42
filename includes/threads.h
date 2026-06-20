@@ -9,6 +9,12 @@
 #include <unistd.h>
 #include <sys/time.h>
 
+typedef struct queue{
+    int val;
+    int index;
+
+    struct queue *next;
+}Queue;
 
 typedef struct dongle{
     pthread_mutex_t mutex_v;
@@ -52,5 +58,7 @@ int *parser(int argc, char **argv);
 void ft_threads(int *data);
 //int ft_smartsleep(int time_to_sleep, Coder *c);
 
+// queue functions:
+Queue *newNode(int val, int index);
 
 #endif

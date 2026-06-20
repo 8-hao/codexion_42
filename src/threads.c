@@ -119,7 +119,7 @@ void *myfunction(void *coders)
             pthread_mutex_unlock(c->left_d);
             return NULL;
         }
-        while(c->left_d->is_available == 0 && ft_time() - c->left_d->release_time < c->left_d->cooldown)
+        while(ft_time() - c->left_d->release_time < c->left_d->cooldown)
         {
             ft_time_to_sleep(&l_dongle, c->left_d->cooldown - (ft_time() - c->left_d->release_time));
             pthread_cond_timedwait(&c->left_d->cond_v, &c->left_d->mutex_v, &l_dongle);
@@ -132,7 +132,7 @@ void *myfunction(void *coders)
             pthread_mutex_unlock(c->right_d);
             return NULL;
         }
-        while(c->right_d->is_available == 0 && ft_time() - c->right_d->release_time < c->right_d->cooldown)
+        while(ft_time() - c->right_d->release_time < c->right_d->cooldown)
         {
     
             ft_time_to_sleep(&r_dongle, c->left_d->cooldown -(ft_time() - c->right_d->release_time));
@@ -200,7 +200,7 @@ void ft_threads(int *data)
     {
         pthread_mutex_init(&dongles[i].mutex_v, NULL);
         pthread_cond_init(&dongles[i].cond_v, NULL);
-        dongles[i].cooldown = data[6]*1000;
+        dongles[i].cooldown = data[6];
         dongles[i].is_available = 1;
         i++;
     }
@@ -239,7 +239,7 @@ void ft_threads(int *data)
     {
         coders[i].init_time = init_time;
         coders[i].last_compile_start = ft_time();
-        dongles[i].release_time = ft_time();
+        dongles[i].release_time = ft_time() - dongles[i].cooldown;;
         pthread_create(&id_threads[i], NULL, myfunction, &coders[i++]);
     }
     pthread_create(&id_monitor, NULL, monitor_func, &monitor);
