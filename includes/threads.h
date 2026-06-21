@@ -9,21 +9,25 @@
 #include <unistd.h>
 #include <sys/time.h>
 
-typedef struct queue{
-    int val;
-    int index;
 
+typedef struct queue{
+    struct coder *c;
+    int index;
     struct queue *next;
 }Queue;
+
 
 typedef struct dongle{
     pthread_mutex_t mutex_v;
     long long release_time;
     int cooldown;
     int is_available;
+    Queue *headq;
     pthread_cond_t cond_v;
+    int arb;
 
 }Dongle;
+
 
 typedef struct coder{
     int id;
@@ -59,6 +63,11 @@ void ft_threads(int *data);
 //int ft_smartsleep(int time_to_sleep, Coder *c);
 
 // queue functions:
-Queue *newNode(int val, int index);
+Queue *newNode(Coder *c, int index);
+void add_back(Queue **head, Queue *node);
+int queuelen(Queue *head);
+void sort_min(Queue **head);
+int is_inqueue(Queue *head, Coder *c);
+void ft_print(Queue *head);
 
 #endif

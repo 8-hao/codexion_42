@@ -1,6 +1,6 @@
 #include "../includes/threads.h"
 
-Queue *newNode(int val, int index)
+Queue *newNode(Coder *c, int index)
 {
     Queue *node;
 
@@ -8,7 +8,7 @@ Queue *newNode(int val, int index)
     if (node == NULL)
         return (NULL);
 
-    node-> val = val;
+    node-> c = c;
     node-> index = index;
     node-> next = NULL;
     return (node);
@@ -47,7 +47,7 @@ void sort_min(Queue **head)
     int ql;
     Queue *helper;
     Queue *n;
-    int tval;
+    Coder *c;
     int tin;
 
     i = 0;
@@ -59,12 +59,12 @@ void sort_min(Queue **head)
         {
             if (helper->index > (helper->next)->index)
             {
-                tval = helper-> val;
+                c = helper-> c;
                 tin = helper-> index;
                 helper->index = (helper->next)->index;
                 (helper->next)->index = tin;
-                helper->val = (helper->next)->val;
-                (helper->next)->val = tval;
+                helper->c = (helper->next)->c;
+                (helper->next)->c = c;
 
             }
             helper= helper->next;
@@ -73,26 +73,35 @@ void sort_min(Queue **head)
     }
 }
 
-int main()
+int is_inqueue(Queue *head,Coder *c)
 {
-    Queue *head = NULL; 
-    Queue *s1 = newNode(1, 1);
-    Queue *s2 = newNode(8, 8);
-    Queue *s3 = newNode(2, 2);
-    Queue *s4 = newNode(4, 4);
-    Queue *s5 = newNode(7, 7);
-    Queue *s6 = newNode(0, 0);
-    add_back(&head, s1);
-    add_back(&head, s2);
-    add_back(&head, s3);
-    add_back(&head, s4);
-    add_back(&head, s5);
-    add_back(&head, s6);
-    printf("^^^^^^^^^^^^\n");
-    sort_min(&head);
+    while(head)
+    {
+        if(c->id == head->c->id)
+            return 0;
+        head = head->next;
+    }   
+    return 1;
+}
+
+
+void ft_print(Queue *head)
+{
     while(head){
-        printf("%d\n",head->val);
+        printf("%d\n",head->c->id);
         head = head->next;
     }
-    return 0;
+    printf("end\n");
+}
+
+Queue *deleteFirst(Queue **head)
+{
+    Queue *first_node;
+    if (*head == NULL)
+        return NULL;
+    first_node = *head;
+
+    *head = (*head)->next;
+    first_node->next = NULL;
+    return (first_node);
 }
