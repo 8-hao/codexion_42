@@ -119,18 +119,20 @@ void *myfunction(void *coder)
             pthread_mutex_unlock(c->left_d);
             return NULL;
         }
-        while(ft_time() - c->left_d->release_time < c->left_d->cooldown)
+        while(ft_time() - c->left_d->release_time < c->left_d->cooldown || (queuelen(c->left_d->headq) != 0 && c->id != c->left_d->headq->c->id ))
         {
             if (is_inqueue(c->left_d->headq, c))
             {
                 add_back(&c->left_d->headq, newNode(c,ft_time()));
-                if (&c->left_d->arb == 2)
+                if (c->left_d->arb == 2)
                     sort_min(&c->left_d->headq);
             }
             ft_print(c->left_d->headq);
             ft_time_to_sleep(&l_dongle, c->left_d->cooldown - (ft_time() - c->left_d->release_time));
             pthread_cond_timedwait(&c->left_d->cond_v, &c->left_d->mutex_v, &l_dongle);
         }
+        if (queuelen(c->left_d->headq) != 0 && c->id == c->left_d->headq->c->id)
+            deleteFirst(&c->left_d->headq);
         printf("%lld %d has taken a dongle\n", ft_time()-c->init_time ,c->id);
 
         pthread_mutex_lock(&c->right_d->mutex_v);
