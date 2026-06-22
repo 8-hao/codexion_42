@@ -6,7 +6,7 @@
 /*   By: username <username@student.42tokyo.jp>    #+#  +:+       +#+         */
 /*                                               +#+#+#+#+#+   +#+            */
 /*   Created: 2026/06/22 13:08:26 by username         #+#    #+#              */
-/*   Updated: 2026/06/22 13:08:34 by username        ###   ########.fr        */
+/*   Updated: 2026/06/22 15:50:00 by username        ###   ########.fr        */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -67,19 +67,28 @@ typedef struct monitor
 	int			num_of_coders;
 	Coder		*coders;
 	Dongle		*dongles;
-	pthread_t	*threads;
 }	Monitor;
 
 int		*parser(int argc, char **argv);
-void	ft_threads(int *data);
-//int ft_smartsleep(int time_to_sleep, Coder *c);
+void	ft_codexion(int *data);
 
-// queue functions:
 Queue	*newnode(Coder *c, int index);
 void	add_back(Queue **head, Queue *node);
 int		queuelen(Queue *head);
 void	sort_min(Queue **head);
 int		is_inqueue(Queue *head, Coder *c);
 void	ft_print(Queue *head);
+
+
+Dongle	*dongles_initializer(int num, int cooldown);
+Coder	*coders_initializer(int *data, Dongle *dongles);
+void	monitor_initializer(Monitor *monitor, int *data, Dongle *dongles, Coder *coders);
+void threads_creation(pthread_t *id_threads, int *data, Coder *coders, void *(*func)(void*));
+void threads_join(pthread_t *id_threads, pthread_t	id_monitor, int *data);
+
+
+int	ft_smartsleep(int time_to_sleep, Coder *c);
+void	ft_time_to_sleep(struct timespec *t, int delay_ms);
+long long	ft_time(void);
 
 #endif

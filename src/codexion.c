@@ -1,52 +1,16 @@
 /* ************************************************************************** */
 /*                                                                            */
 /*                                                       :::      ::::::::    */
-/*   threads.c                                         :+:      :+:    :+:    */
+/*   codexion.c                                        :+:      :+:    :+:    */
 /*                                                   +:+ +:+         +:+      */
 /*   By: username <username@student.42tokyo.jp>    #+#  +:+       +#+         */
 /*                                               +#+#+#+#+#+   +#+            */
 /*   Created: 2026/06/22 13:06:00 by username         #+#    #+#              */
-/*   Updated: 2026/06/22 13:14:03 by username        ###   ########.fr        */
+/*   Updated: 2026/06/22 17:02:50 by username        ###   ########.fr        */
 /*                                                                            */
 /* ************************************************************************** */
 
 #include "../includes/threads.h"
-
-static long long	ft_time(void)
-{
-	struct timeval	d;
-	long long		time;
-
-	gettimeofday(&d, NULL);
-	time = d.tv_sec * 1000 + d.tv_usec / 1000;
-	return (time);
-}
-
-void	ft_time_to_sleep(struct timespec *t, int delay_ms)
-{
-	struct timeval	d;
-	long long		total_nsec;
-
-	gettimeofday(&d, NULL);
-	total_nsec = (long long) d.tv_usec * 1000 + (long long) delay_ms * 1000000;
-	t->tv_sec = d.tv_sec + (total_nsec / 1000000000);
-	t->tv_nsec = total_nsec % 1000000000;
-}
-
-int	ft_smartsleep(int time_to_sleep, Coder *c)
-{
-	long long	current_time;
-
-	current_time = 0;
-	while (current_time < time_to_sleep * 1000)
-	{
-		if (c->stop)
-			return (0);
-		current_time += 500;
-		usleep(500);
-	}
-	return (1);
-}
 
 void	*monitor_func(void *monitor)
 {
@@ -101,7 +65,7 @@ void	*monitor_func(void *monitor)
 	return (NULL);
 }
 
-void	*myfunction(void *coder)
+void	*func(void *coder)
 {
 	Coder			*c;
 	int				i;
@@ -187,75 +151,27 @@ void	*myfunction(void *coder)
 	return (NULL);
 }
 
-void	ft_threads(int *data)
+void	ft_codexion(int *data)
 {
-	Dongle			*dongles;
-	Coder			*coders;
-	Monitor			monitor;
-	long long		init_time;
-	pthread_t		*id_threads;
-	pthread_mutex_t	*check_time;
-	pthread_t		id_monitor;
-	int				i;
+	Dongle		*dongles;
+	Coder		*coders;
+	Monitor		monitor;
+	pthread_t	*id_threads;
+	pthread_t	id_monitor;
+	int			i;
 
 	i = 0;
-	coders = malloc(sizeof(Coder) * data[0]);
-	dongles = malloc(sizeof(Dongle) * data[0]);
-	id_threads = malloc(sizeof(pthread_t) * data[0]);
-	check_time = malloc(sizeof(pthread_mutex_t) * data[0]);
-	if (dongles == NULL || coders == NULL || id_threads == NULL)
+	dongles = dongles_initializer(data[0], data[6]);
+	if (dongles == NULL)
 		return ;
-	while (i < data[0])
-	{
-		pthread_mutex_init(&dongles[i].mutex_v, NULL);
-		pthread_cond_init(&dongles[i].cond_v, NULL);
-		dongles[i].cooldown = data[6];
-		dongles[i].is_available = 1;
-		i++;
-	}
-	i = 0;
-	while (i < data[0])
-	{
-		coders[i].id = i + 1;
-		if (((i + 1) % data[0]) < i)
-		{
-			coders[i].left_d = &dongles[(i + 1) % data[0]];
-			coders[i].right_d = &dongles[i];
-		}
-		else
-		{
-			coders[i].left_d = &dongles[i];
-			coders[i].right_d = &dongles[(i + 1) % data[0]];
-		}
-		coders[i].time_to_burnout = data[1];
-		coders[i].time_to_compile = data[2];
-		coders[i].time_to_debug = data[3];
-		coders[i].time_to_refactor = data[4];
-		coders[i].num_of_compiles_required = data[5];
-		coders[i].compile_count = 0;
-		coders[i].check_time = &check_time[i];
-		coders[i].finish = 0;
-		coders[i].stop = 0;
-		pthread_mutex_init(&check_time[i], NULL);
-		i++;
-	}
-	i = 0;
-	monitor.coders = coders;
-	monitor.dongles = dongles;
-	monitor.threads = id_threads;
-	monitor.num_of_coders = data[0];
-	init_time = ft_time();
-	while (i < data[0])
-	{
-		coders[i].init_time = init_time;
-		coders[i].last_compile_start = ft_time();
-		dongles[i].release_time = ft_time() - dongles[i].cooldown;
-		;
-		pthread_create(&id_threads[i], NULL, myfunction, &coders[i++]);
-	}
+	coders = coders_initializer(data, dongles);
+	if (coders == NULL)
+		return ;
+	id_threads = malloc(sizeof(pthread_t) * data[0]);
+	if (id_threads == NULL)
+		return ;
+	monitor_initializer(&monitor, data, dongles, coders);
+	threads_creation(id_threads, data, coders, func);
 	pthread_create(&id_monitor, NULL, monitor_func, &monitor);
-	i = 0;
-	while (i < data[0])
-		pthread_join(id_threads[i++], NULL);
-	pthread_join(id_monitor, NULL);
+	threads_join(id_threads,id_monitor, data);
 }

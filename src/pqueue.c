@@ -6,7 +6,7 @@
 /*   By: username <username@student.42tokyo.jp>    #+#  +:+       +#+         */
 /*                                               +#+#+#+#+#+   +#+            */
 /*   Created: 2026/06/22 13:06:18 by username         #+#    #+#              */
-/*   Updated: 2026/06/22 13:08:19 by username        ###   ########.fr        */
+/*   Updated: 2026/06/22 13:24:26 by username        ###   ########.fr        */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -27,8 +27,9 @@ Queue	*newnode(Coder *c, int index)
 
 void	add_back(Queue **head, Queue *node)
 {
-	Queue	*second = *head;
+	Queue	*second;
 
+	second = *head;
 	if (*head == NULL)
 	{
 		*head = node;
