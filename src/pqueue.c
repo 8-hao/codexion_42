@@ -1,107 +1,119 @@
+/* ************************************************************************** */
+/*                                                                            */
+/*                                                       :::      ::::::::    */
+/*   pqueue.c                                          :+:      :+:    :+:    */
+/*                                                   +:+ +:+         +:+      */
+/*   By: username <username@student.42tokyo.jp>    #+#  +:+       +#+         */
+/*                                               +#+#+#+#+#+   +#+            */
+/*   Created: 2026/06/22 13:06:18 by username         #+#    #+#              */
+/*   Updated: 2026/06/22 13:08:19 by username        ###   ########.fr        */
+/*                                                                            */
+/* ************************************************************************** */
+
 #include "../includes/threads.h"
 
-Queue *newNode(Coder *c, int index)
+Queue	*newnode(Coder *c, int index)
 {
-    Queue *node;
+	Queue	*node;
 
-    node = malloc(sizeof(Queue));
-    if (node == NULL)
-        return (NULL);
-
-    node-> c = c;
-    node-> index = index;
-    node-> next = NULL;
-    return (node);
+	node = malloc(sizeof(Queue));
+	if (node == NULL)
+		return (NULL);
+	node->c = c;
+	node->index = index;
+	node->next = NULL;
+	return (node);
 }
 
-void add_back(Queue **head, Queue *node)
+void	add_back(Queue **head, Queue *node)
 {
-    Queue *second = *head;
-    if (*head == NULL){
-        *head = node;
-        return;
-    }
+	Queue	*second = *head;
 
-    while(second->next){
-        second =second->next;
-    }
-    second->next = node;
+	if (*head == NULL)
+	{
+		*head = node;
+		return ;
+	}
+	while (second->next)
+	{
+		second = second->next;
+	}
+	second->next = node;
 }
 
-int queuelen(Queue *head)
+int	queuelen(Queue *head)
 {
-    int i;
+	int	i;
 
-    i = 0;
-    while(head)
-    {
-        i++;
-        head = head->next;
-    }
-    return i;
+	i = 0;
+	while (head)
+	{
+		i++;
+		head = head->next;
+	}
+	return (i);
 }
 
-void sort_min(Queue **head)
+void	sort_min(Queue **head)
 {
-    int i;
-    int ql;
-    Queue *helper;
-    Queue *n;
-    Coder *c;
-    int tin;
+	int		i;
+	int		ql;
+	Queue	*helper;
+	Queue	*n;
+	Coder	*c;
+	int		tin;
 
-    i = 0;
-    ql = queuelen(*head);
-    while(i < ql)
-    {
-        helper = *head;
-        while(helper && helper->next)
-        {
-            if (helper->index > (helper->next)->index)
-            {
-                c = helper-> c;
-                tin = helper-> index;
-                helper->index = (helper->next)->index;
-                (helper->next)->index = tin;
-                helper->c = (helper->next)->c;
-                (helper->next)->c = c;
-
-            }
-            helper= helper->next;
-        }
-        i++;
-    }
+	i = 0;
+	ql = queuelen(*head);
+	while (i < ql)
+	{
+		helper = *head;
+		while (helper && helper->next)
+		{
+			if (helper->index > (helper->next)->index)
+			{
+				c = helper->c;
+				tin = helper->index;
+				helper->index = (helper->next)->index;
+				(helper->next)->index = tin;
+				helper->c = (helper->next)->c;
+				(helper->next)->c = c;
+			}
+			helper = helper->next;
+		}
+		i++;
+	}
 }
 
-int is_inqueue(Queue *head,Coder *c)
+int	is_inqueue(Queue *head, Coder *c)
 {
-    while(head)
-    {
-        if(c->id == head->c->id)
-            return 0;
-        head = head->next;
-    }   
-    return 1;
+	while (head)
+	{
+		if (c->id == head->c->id)
+			return (0);
+		head = head->next;
+	}
+	return (1);
 }
 
-
-void ft_print(Queue *head)
+void	ft_print(Queue *head)
 {
-    while(head){
-        printf("%d\n",head->c->id);
-        head = head->next;
-    }
-    printf("end\n");
+	while (head)
+	{
+		printf("%d\n", head->c->id);
+		head = head->next;
+	}
+	printf("end\n");
 }
 
-Queue *deleteFirst(Queue **head)
+Queue	*deleteFirst(Queue **head)
 {
-    Queue *first_node;
-    if (*head == NULL)
-        return NULL;
-    first_node = *head;
+	Queue	*first_node;
 
-    *head = (*head)->next;
-    first_node->next = NULL;
-    return (first_node);
+	if (*head == NULL)
+		return (NULL);
+	first_node = *head;
+	*head = (*head)->next;
+	first_node->next = NULL;
+	return (first_node);
 }
