@@ -19,10 +19,8 @@
 
 int	main(int argc, char **argv)
 {
-	int	i;
 	int	*data;
 
-	i = 0;
 	if (argc != 9)
 	{
 		printf("Error: Expected 8 arguments, but received %d.\n", argc - 1);

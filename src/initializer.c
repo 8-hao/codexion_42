@@ -91,7 +91,8 @@ void	threads_creation(pthread_t *id_threads, int *data, Coder *coders, void * (*
 		coders[i].init_time = init_time;
 		coders[i].last_compile_start = ft_time();
 		dongles[i].release_time = ft_time() - dongles[i].cooldown;
-		pthread_create(&id_threads[i], NULL, func, &coders[i++]);
+		pthread_create(&id_threads[i], NULL, func, &coders[i]);
+		i++;
 	}
 }
 

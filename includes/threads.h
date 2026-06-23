@@ -78,6 +78,8 @@ int		queuelen(Queue *head);
 void	sort_min(Queue **head);
 int		is_inqueue(Queue *head, Coder *c);
 void	ft_print(Queue *head);
+Queue	*deletefirst(Queue **head);
+
 
 
 Dongle	*dongles_initializer(int num, int cooldown);
@@ -90,5 +92,11 @@ void threads_join(pthread_t *id_threads, pthread_t	id_monitor, int *data);
 int	ft_smartsleep(int time_to_sleep, Coder *c);
 void	ft_time_to_sleep(struct timespec *t, int delay_ms);
 long long	ft_time(void);
+
+
+int acquire_dongle(Coder *c, Dongle *d, char ch);
+void release_dongle(Dongle *d);
+int compiling(Coder *c);
+int debug_and_refactor(Coder *c);
 
 #endif

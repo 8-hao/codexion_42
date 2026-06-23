@@ -12,6 +12,7 @@
 
 #include "../includes/threads.h"
 
+
 void	*monitor_func(void *monitor)
 {
 	Monitor		*m;
@@ -65,13 +66,11 @@ void	*monitor_func(void *monitor)
 	return (NULL);
 }
 
+
 void	*func(void *coder)
 {
 	Coder			*c;
 	int				i;
-	int				r;
-	struct timespec	l_dongle;
-	struct timespec	r_dongle;
 
 	c = (Coder *) coder;
 	i = 0;
@@ -79,76 +78,25 @@ void	*func(void *coder)
 	{
 		if (c->stop)
 			return (NULL);
-		pthread_mutex_lock(&c->left_d->mutex_v);
-		if (c->stop)
-		{
-			pthread_mutex_unlock(c->left_d);
+		
+		if (acquire_dongle(c, c->left_d, 'l')==0)
 			return (NULL);
-		}
-		while (ft_time() - c->left_d->release_time < c->left_d->cooldown || (queuelen(c->left_d->headq) != 0 && c->id != c->left_d->headq->c->id))
-		{
-			if (is_inqueue(c->left_d->headq, c))
-			{
-				add_back(&c->left_d->headq, newnode(c, ft_time()));
-				if (c->left_d->arb == 2)
-					sort_min(&c->left_d->headq);
-			}
-			ft_time_to_sleep(&l_dongle, c->left_d->cooldown - (ft_time() - c->left_d->release_time));
-			pthread_cond_timedwait(&c->left_d->cond_v, &c->left_d->mutex_v, &l_dongle);
-		}
-		if (queuelen(c->left_d->headq) != 0 && c->id == c->left_d->headq->c->id)
-			deleteFirst(&c->left_d->headq);
-		printf("%lld %d has taken a dongle\n", ft_time() - c->init_time, c->id);
-		pthread_mutex_lock(&c->right_d->mutex_v);
-		if (c->stop)
-		{
-			pthread_mutex_unlock(c->left_d);
-			pthread_mutex_unlock(c->right_d);
+
+		if (acquire_dongle(c, c->right_d, 'r')==0)
 			return (NULL);
-		}
-		while (ft_time() - c->right_d->release_time < c->right_d->cooldown || (queuelen(c->right_d->headq) != 0 && c->id != c->right_d->headq->c->id))
-		{
-			if (is_inqueue(c->right_d->headq, c))
-			{
-				add_back(&c->right_d->headq, newnode(c, ft_time()));
-				if (c->right_d->arb == 2)
-					sort_min(&c->right_d->headq);
-			}
-			ft_time_to_sleep(&r_dongle, c->right_d->cooldown - (ft_time() - c->right_d->release_time));
-			pthread_cond_timedwait(&c->right_d->cond_v, &c->right_d->mutex_v, &r_dongle);
-		}
-		if (queuelen(c->right_d->headq) != 0 && c->id == c->right_d->headq->c->id)
-			deleteFirst(&c->right_d->headq);
-		printf("%lld %d has taken a dongle\n", ft_time() - c->init_time, c->id);
-		printf("%lld %d is compiling\n", ft_time() - c->init_time, c->id);
-		r = ft_smartsleep(c->time_to_compile, c);
-		if (r == 0)
-		{
-			pthread_mutex_unlock(c->left_d);
-			pthread_mutex_unlock(c->right_d);
+
+		if (compiling(c) == 0)
 			return (NULL);
-		}
-		pthread_mutex_lock(c->check_time);
-		c->last_compile_start = ft_time();
-		pthread_mutex_unlock(c->check_time);
-		c->left_d->is_available = 1;
-		c->left_d->release_time = ft_time();
-		pthread_mutex_unlock(&c->left_d->mutex_v);
-		c->right_d->is_available = 1;
-		c->right_d->release_time = ft_time();
-		pthread_mutex_unlock(&c->right_d->mutex_v);
-		printf("%lld %d is debugging\n", ft_time() - c->init_time, c->id);
-		r = ft_smartsleep(c->time_to_debug, c);
-		if (r == 0)
-			return (NULL);
-		printf("%lld %d is refactoring\n", ft_time() - c->init_time, c->id);
-		r = ft_smartsleep(c->time_to_refactor, c);
-		if (r == 0)
-			return (NULL);
+
+		release_dongle(c->left_d);
+		release_dongle(c->right_d);
+
+		if (debug_and_refactor(c) == 0)
+			return NULL;
+
 		c->compile_count = i;
 	}
-	c->finish = 1;
-	return (NULL);
+	return (c->finish = 1,NULL);
 }
 
 void	ft_codexion(int *data)
@@ -158,9 +106,7 @@ void	ft_codexion(int *data)
 	Monitor		monitor;
 	pthread_t	*id_threads;
 	pthread_t	id_monitor;
-	int			i;
 
-	i = 0;
 	dongles = dongles_initializer(data[0], data[6]);
 	if (dongles == NULL)
 		return ;

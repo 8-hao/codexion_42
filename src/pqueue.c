@@ -60,7 +60,6 @@ void	sort_min(Queue **head)
 	int		i;
 	int		ql;
 	Queue	*helper;
-	Queue	*n;
 	Coder	*c;
 	int		tin;
 
@@ -97,17 +96,7 @@ int	is_inqueue(Queue *head, Coder *c)
 	return (1);
 }
 
-void	ft_print(Queue *head)
-{
-	while (head)
-	{
-		printf("%d\n", head->c->id);
-		head = head->next;
-	}
-	printf("end\n");
-}
-
-Queue	*deleteFirst(Queue **head)
+Queue	*deletefirst(Queue **head)
 {
 	Queue	*first_node;
 
