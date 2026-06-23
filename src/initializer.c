@@ -6,7 +6,7 @@
 /*   By: username <username@student.42tokyo.jp>    #+#  +:+       +#+         */
 /*                                               +#+#+#+#+#+   +#+            */
 /*   Created: 2026/06/22 15:51:11 by username         #+#    #+#              */
-/*   Updated: 2026/06/22 17:02:43 by username        ###   ########.fr        */
+/*   Updated: 2026/06/23 21:44:03 by username        ###   ########.fr        */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -70,25 +70,25 @@ Coder	*coders_initializer(int *data, Dongle *dongles)
 	return (coders);
 }
 
-void	monitor_initializer(Monitor *monitor, int *data, Dongle *dongles, Coder *coders)
+void	m_init(Monitor *monitor, int *data, Dongle *dongles, Coder *coders)
 {
 	(*monitor).coders = coders;
 	(*monitor).dongles = dongles;
 	(*monitor).num_of_coders = data[0];
 }
 
-void	threads_creation(pthread_t *id_threads, int *data, Coder *coders, void * (*func)(void *))
+void	threads(pthread_t *ids, int *data, Coder *coders, void * (*f)(void *))
 {
-	Dongle	*dongles;
-	int		i;
-	long long init_time;
+	Dongle		*dongles;
+	int			i;
+	long long	init;
 
 	dongles = coders[0].left_d;
-	init_time = ft_time();
+	init = ft_time();
 	i = 0;
 	while (i < data[0])
 	{
-		coders[i].init_time = init_time;
+		coders[i].init_time = init;
 		coders[i].last_compile_start = ft_time();
 		dongles[i].release_time = ft_time() - dongles[i].cooldown;
 		pthread_create(&id_threads[i], NULL, func, &coders[i]);
@@ -96,9 +96,9 @@ void	threads_creation(pthread_t *id_threads, int *data, Coder *coders, void * (*
 	}
 }
 
-void threads_join(pthread_t *id_threads, pthread_t	id_monitor, int *data)
+void	threads_join(pthread_t *id_threads, pthread_t id_monitor, int *data)
 {
-	int i;
+	int	i;
 
 	i = 0;
 	while (i < data[0])

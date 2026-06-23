@@ -6,16 +6,11 @@
 /*   By: username <username@student.42tokyo.jp>    #+#  +:+       +#+         */
 /*                                               +#+#+#+#+#+   +#+            */
 /*   Created: 2026/06/22 13:06:47 by username         #+#    #+#              */
-/*   Updated: 2026/06/22 15:49:52 by username        ###   ########.fr        */
+/*   Updated: 2026/06/23 21:30:53 by username        ###   ########.fr        */
 /*                                                                            */
 /* ************************************************************************** */
 
 #include "../includes/threads.h"
-
-
-
-
-
 
 int	main(int argc, char **argv)
 {

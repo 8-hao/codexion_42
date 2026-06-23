@@ -6,13 +6,13 @@
 /*   By: username <username@student.42tokyo.jp>    #+#  +:+       +#+         */
 /*                                               +#+#+#+#+#+   +#+            */
 /*   Created: 2026/06/22 13:06:00 by username         #+#    #+#              */
-/*   Updated: 2026/06/22 17:02:50 by username        ###   ########.fr        */
+/*   Updated: 2026/06/23 21:41:56 by username        ###   ########.fr        */
 /*                                                                            */
 /* ************************************************************************** */
 
 #include "../includes/threads.h"
 
-int check_burnout(Monitor *m, int i)
+int	check_burnout(Monitor *m, int i)
 {
 	long long	current_time;
 	long long	last_compile_start;
@@ -31,9 +31,9 @@ int check_burnout(Monitor *m, int i)
 	return (0);
 }
 
-void stop_all(Monitor *m)
+void	stop_all(Monitor *m)
 {
-	int i;
+	int	i;
 
 	i = 0;
 	while (i < m->num_of_coders)
@@ -42,12 +42,13 @@ void stop_all(Monitor *m)
 		i++;
 	}
 }
+
 void	*monitor_func(void *monitor)
 {
-	Monitor		*m;
-	int			i;
-	int			counter;
-	int			finished;
+	Monitor	*m;
+	int		i;
+	int		counter;
+	int		finished;
 
 	m = (Monitor *) monitor;
 	while (1)
@@ -58,7 +59,7 @@ void	*monitor_func(void *monitor)
 		while (i < m->num_of_coders)
 		{
 			if (check_burnout(m, i))
-				return (stop_all(m),NULL);
+				return (stop_all(m), NULL);
 			check_finished(m, i, &finished, &counter);
 			i++;
 		}
@@ -69,11 +70,10 @@ void	*monitor_func(void *monitor)
 	return (NULL);
 }
 
-
 void	*func(void *coder)
 {
-	Coder			*c;
-	int				i;
+	Coder	*c;
+	int		i;
 
 	c = (Coder *) coder;
 	i = 0;
@@ -81,25 +81,19 @@ void	*func(void *coder)
 	{
 		if (c->stop)
 			return (NULL);
-		
-		if (acquire_dongle(c, c->left_d, 'l')==0)
+		if (acquire_dongle(c, c->left_d, 'l') == 0)
 			return (NULL);
-
-		if (acquire_dongle(c, c->right_d, 'r')==0)
+		if (acquire_dongle(c, c->right_d, 'r') == 0)
 			return (NULL);
-
 		if (compiling(c) == 0)
 			return (NULL);
-
 		release_dongle(c->left_d);
 		release_dongle(c->right_d);
-
 		if (debug_and_refactor(c) == 0)
-			return NULL;
-
+			return (NULL);
 		c->compile_count = i;
 	}
-	return (c->finish = 1,NULL);
+	return (c->finish = 1, NULL);
 }
 
 void	ft_codexion(int *data)
@@ -119,8 +113,8 @@ void	ft_codexion(int *data)
 	id_threads = malloc(sizeof(pthread_t) * data[0]);
 	if (id_threads == NULL)
 		return ;
-	monitor_initializer(&monitor, data, dongles, coders);
+	m_init(&monitor, data, dongles, coders);
 	threads_creation(id_threads, data, coders, func);
 	pthread_create(&id_monitor, NULL, monitor_func, &monitor);
-	threads_join(id_threads,id_monitor, data);
+	threads_join(id_threads, id_monitor, data);
 }

@@ -1,7 +1,30 @@
+/* ************************************************************************** */
+/*                                                                            */
+/*                                                       :::      ::::::::    */
+/*   coder_actions.c                                   :+:      :+:    :+:    */
+/*                                                   +:+ +:+         +:+      */
+/*   By: username <username@student.42tokyo.jp>    #+#  +:+       +#+         */
+/*                                               +#+#+#+#+#+   +#+            */
+/*   Created: 2026/06/23 21:33:23 by username         #+#    #+#              */
+/*   Updated: 2026/06/23 21:33:34 by username        ###   ########.fr        */
+/*                                                                            */
+/* ************************************************************************** */
+
+/* ************************************************************************** */
+/*                                                                            */
+/*                                                       :::      ::::::::    */
+/*   coder_actions.c                                   :+:      :+:    :+:    */
+/*                                                   +:+ +:+         +:+      */
+/*   By: username <username@student.42tokyo.jp>    #+#  +:+       +#+         */
+/*                                               +#+#+#+#+#+   +#+            */
+/*   Created: 2026/06/23 21:29:30 by username         #+#    #+#              */
+/*   Updated: 2026/06/23 21:33:12 by username        ###   ########.fr        */
+/*                                                                            */
+/* ************************************************************************** */
+
 #include "../includes/threads.h"
 
-
-int debug_and_refactor(Coder *c)
+int	debug_and_refactor(Coder *c)
 {
 	printf("%lld %d is debugging\n", ft_time() - c->init_time, c->id);
 	if (ft_smartsleep(c->time_to_debug, c) == 0)
@@ -12,9 +35,9 @@ int debug_and_refactor(Coder *c)
 	return (1);
 }
 
-int compiling(Coder *c)
+int	compiling(Coder *c)
 {
-	int r;
+	int	r;
 
 	printf("%lld %d is compiling\n", ft_time() - c->init_time, c->id);
 	r = ft_smartsleep(c->time_to_compile, c);
@@ -27,19 +50,17 @@ int compiling(Coder *c)
 	pthread_mutex_lock(c->check_time);
 	c->last_compile_start = ft_time();
 	pthread_mutex_unlock(c->check_time);
-	return r;
-
+	return (r);
 }
 
-void release_dongle(Dongle *d)
+void	release_dongle(Dongle *d)
 {
 	d->is_available = 1;
 	d->release_time = ft_time();
 	pthread_mutex_unlock(&d->mutex_v);
-
 }
 
-int acquire_dongle(Coder *c, Dongle *d, char ch)
+int	acquire_dongle(Coder *c, Dongle *d, char ch)
 {
 	struct timespec	tmp_dongle;
 
@@ -65,10 +86,10 @@ int acquire_dongle(Coder *c, Dongle *d, char ch)
 	if (queuelen(d->headq) != 0 && c->id == d->headq->c->id)
 		deletefirst(&d->headq);
 	printf("%lld %d has taken a dongle\n", ft_time() - c->init_time, c->id);
-	return 1;
+	return (1);
 }
 
-void check_finished(Monitor *m, int i, int *finished, int *counter)
+void	check_finished(Monitor *m, int i, int *finished, int *counter)
 {
 	if (m->coders[i].finish == 1)
 	{

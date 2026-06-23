@@ -6,7 +6,7 @@
 /*   By: username <username@student.42tokyo.jp>    #+#  +:+       +#+         */
 /*                                               +#+#+#+#+#+   +#+            */
 /*   Created: 2026/06/22 13:06:18 by username         #+#    #+#              */
-/*   Updated: 2026/06/22 13:24:26 by username        ###   ########.fr        */
+/*   Updated: 2026/06/23 21:28:59 by username        ###   ########.fr        */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -94,16 +94,4 @@ int	is_inqueue(Queue *head, Coder *c)
 		head = head->next;
 	}
 	return (1);
-}
-
-Queue	*deletefirst(Queue **head)
-{
-	Queue	*first_node;
-
-	if (*head == NULL)
-		return (NULL);
-	first_node = *head;
-	*head = (*head)->next;
-	first_node->next = NULL;
-	return (first_node);
 }
