@@ -67,3 +67,13 @@ int acquire_dongle(Coder *c, Dongle *d, char ch)
 	printf("%lld %d has taken a dongle\n", ft_time() - c->init_time, c->id);
 	return 1;
 }
+
+void check_finished(Monitor *m, int i, int *finished, int *counter)
+{
+	if (m->coders[i].finish == 1)
+	{
+		(*finished)++;
+		if (m->coders[i].compile_count == m->coders[i].num_of_compiles_required)
+			(*counter)++;
+	}
+}

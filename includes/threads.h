@@ -92,6 +92,7 @@ void threads_join(pthread_t *id_threads, pthread_t	id_monitor, int *data);
 int	ft_smartsleep(int time_to_sleep, Coder *c);
 void	ft_time_to_sleep(struct timespec *t, int delay_ms);
 long long	ft_time(void);
+void check_finished(Monitor *m, int i, int *finished, int *counter);
 
 
 int acquire_dongle(Coder *c, Dongle *d, char ch);

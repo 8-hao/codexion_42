@@ -12,55 +12,58 @@
 
 #include "../includes/threads.h"
 
+int check_burnout(Monitor *m, int i)
+{
+	long long	current_time;
+	long long	last_compile_start;
+	long long	time_to_burnout;
 
+	pthread_mutex_lock(m->coders[i].check_time);
+	current_time = ft_time();
+	last_compile_start = m->coders[i].last_compile_start;
+	time_to_burnout = m->coders[i].time_to_burnout;
+	pthread_mutex_unlock(m->coders[i].check_time);
+	if (current_time - last_compile_start >= time_to_burnout && m->coders[i].finish == 0)
+	{
+		printf("%lld %d is burned out\n", current_time - m->coders[i].init_time, m->coders[i].id);
+		return (1);
+	}
+	return (0);
+}
+
+void stop_all(Monitor *m)
+{
+	int i;
+
+	i = 0;
+	while (i < m->num_of_coders)
+	{
+		m->coders[i].stop = 1;
+		i++;
+	}
+}
 void	*monitor_func(void *monitor)
 {
 	Monitor		*m;
-	long long	last_compile_start;
-	long long	time_to_burnout;
-	long long	current_time;
 	int			i;
 	int			counter;
 	int			finished;
 
 	m = (Monitor *) monitor;
-	i = 0;
-	counter = 0;
-	finished = 0;
 	while (1)
 	{
+		i = 0;
+		counter = 0;
+		finished = 0;
 		while (i < m->num_of_coders)
 		{
-			pthread_mutex_lock(m->coders[i].check_time);
-			current_time = ft_time();
-			last_compile_start = m->coders[i].last_compile_start;
-			time_to_burnout = m->coders[i].time_to_burnout;
-			pthread_mutex_unlock(m->coders[i].check_time);
-			if (current_time - last_compile_start >= time_to_burnout && m->coders[i].finish == 0)
-			{
-				printf("%lld %d is burned out\n", (current_time - m->coders[i].init_time), m->coders[i].id);
-				i = 0;
-				while (i < m->num_of_coders)
-				{
-					m->coders[i].stop = 1;
-					i++;
-				}
-				return (NULL);
-			}
-			if (m->coders[i].finish == 1)
-			{
-				finished++;
-				if (m->coders[i].compile_count == m->coders[i].num_of_compiles_required)
-					counter++;
-			}
+			if (check_burnout(m, i))
+				return (stop_all(m),NULL);
+			check_finished(m, i, &finished, &counter);
 			i++;
 		}
-		if (finished == m->num_of_coders)
-			if (finished == counter)
+		if (finished == m->num_of_coders && finished == counter)
 			return (NULL);
-		i = 0;
-		finished = 0;
-		counter = 0;
 		usleep(1000);
 	}
 	return (NULL);
