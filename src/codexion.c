@@ -6,13 +6,13 @@
 /*   By: username <username@student.42tokyo.jp>    #+#  +:+       +#+         */
 /*                                               +#+#+#+#+#+   +#+            */
 /*   Created: 2026/06/22 13:06:00 by username         #+#    #+#              */
-/*   Updated: 2026/06/23 21:41:56 by username        ###   ########.fr        */
+/*   Updated: 2026/06/24 16:17:41 by username        ###   ########.fr        */
 /*                                                                            */
 /* ************************************************************************** */
 
 #include "../includes/threads.h"
 
-int	check_burnout(Monitor *m, int i)
+int	check_burnout(t_monitor *m, int i)
 {
 	long long	current_time;
 	long long	last_compile_start;
@@ -31,7 +31,7 @@ int	check_burnout(Monitor *m, int i)
 	return (0);
 }
 
-void	stop_all(Monitor *m)
+void	stop_all(t_monitor *m)
 {
 	int	i;
 
@@ -45,12 +45,12 @@ void	stop_all(Monitor *m)
 
 void	*monitor_func(void *monitor)
 {
-	Monitor	*m;
-	int		i;
-	int		counter;
-	int		finished;
+	t_monitor	*m;
+	int			i;
+	int			counter;
+	int			finished;
 
-	m = (Monitor *) monitor;
+	m = (t_monitor *) monitor;
 	while (1)
 	{
 		i = 0;
@@ -72,10 +72,10 @@ void	*monitor_func(void *monitor)
 
 void	*func(void *coder)
 {
-	Coder	*c;
+	t_coder	*c;
 	int		i;
 
-	c = (Coder *) coder;
+	c = (t_coder *) coder;
 	i = 0;
 	while (i++ < c->num_of_compiles_required)
 	{
@@ -98,9 +98,9 @@ void	*func(void *coder)
 
 void	ft_codexion(int *data)
 {
-	Dongle		*dongles;
-	Coder		*coders;
-	Monitor		monitor;
+	t_dongle	*dongles;
+	t_coder		*coders;
+	t_monitor	monitor;
 	pthread_t	*id_threads;
 	pthread_t	id_monitor;
 
@@ -114,7 +114,15 @@ void	ft_codexion(int *data)
 	if (id_threads == NULL)
 		return ;
 	m_init(&monitor, data, dongles, coders);
-	threads_creation(id_threads, data, coders, func);
-	pthread_create(&id_monitor, NULL, monitor_func, &monitor);
+	if (threads(id_threads, data, coders, func) == 0)
+	{
+		free_all(dongles, coders);
+		return;
+	}
+	if (pthread_create(&id_monitor, NULL, monitor_func, &monitor) != 0 ){
+		free_all(dongles, coders);
+		return;
+	}
 	threads_join(id_threads, id_monitor, data);
+	free_all(dongles, coders);
 }

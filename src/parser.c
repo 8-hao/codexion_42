@@ -6,7 +6,7 @@
 /*   By: username <username@student.42tokyo.jp>    #+#  +:+       +#+         */
 /*                                               +#+#+#+#+#+   +#+            */
 /*   Created: 2026/06/23 21:31:01 by username         #+#    #+#              */
-/*   Updated: 2026/06/23 21:31:01 by username        ###   ########.fr        */
+/*   Updated: 2026/06/24 16:17:25 by username        ###   ########.fr        */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -98,6 +98,6 @@ int	*parser(int argc, char **argv)
 	if (!a)
 		return (free(data), NULL);
 	data[i - 1] = a;
-	data[i] = -1;
+	//data[i] = -1;
 	return (data);
 }

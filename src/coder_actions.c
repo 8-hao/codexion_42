@@ -6,25 +6,13 @@
 /*   By: username <username@student.42tokyo.jp>    #+#  +:+       +#+         */
 /*                                               +#+#+#+#+#+   +#+            */
 /*   Created: 2026/06/23 21:33:23 by username         #+#    #+#              */
-/*   Updated: 2026/06/23 21:33:34 by username        ###   ########.fr        */
-/*                                                                            */
-/* ************************************************************************** */
-
-/* ************************************************************************** */
-/*                                                                            */
-/*                                                       :::      ::::::::    */
-/*   coder_actions.c                                   :+:      :+:    :+:    */
-/*                                                   +:+ +:+         +:+      */
-/*   By: username <username@student.42tokyo.jp>    #+#  +:+       +#+         */
-/*                                               +#+#+#+#+#+   +#+            */
-/*   Created: 2026/06/23 21:29:30 by username         #+#    #+#              */
-/*   Updated: 2026/06/23 21:33:12 by username        ###   ########.fr        */
+/*   Updated: 2026/06/24 16:17:49 by username        ###   ########.fr        */
 /*                                                                            */
 /* ************************************************************************** */
 
 #include "../includes/threads.h"
 
-int	debug_and_refactor(Coder *c)
+int	debug_and_refactor(t_coder *c)
 {
 	printf("%lld %d is debugging\n", ft_time() - c->init_time, c->id);
 	if (ft_smartsleep(c->time_to_debug, c) == 0)
@@ -35,7 +23,7 @@ int	debug_and_refactor(Coder *c)
 	return (1);
 }
 
-int	compiling(Coder *c)
+int	compiling(t_coder *c)
 {
 	int	r;
 
@@ -53,14 +41,14 @@ int	compiling(Coder *c)
 	return (r);
 }
 
-void	release_dongle(Dongle *d)
+void	release_dongle(t_dongle *d)
 {
 	d->is_available = 1;
 	d->release_time = ft_time();
 	pthread_mutex_unlock(&d->mutex_v);
 }
 
-int	acquire_dongle(Coder *c, Dongle *d, char ch)
+int	acquire_dongle(t_coder *c, t_dongle *d, char ch)
 {
 	struct timespec	tmp_dongle;
 
@@ -84,12 +72,12 @@ int	acquire_dongle(Coder *c, Dongle *d, char ch)
 		pthread_cond_timedwait(&d->cond_v, &d->mutex_v, &tmp_dongle);
 	}
 	if (queuelen(d->headq) != 0 && c->id == d->headq->c->id)
-		deletefirst(&d->headq);
+		free(deletefirst(&d->headq));
 	printf("%lld %d has taken a dongle\n", ft_time() - c->init_time, c->id);
 	return (1);
 }
 
-void	check_finished(Monitor *m, int i, int *finished, int *counter)
+void	check_finished(t_monitor *m, int i, int *finished, int *counter)
 {
 	if (m->coders[i].finish == 1)
 	{

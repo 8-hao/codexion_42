@@ -1,30 +1,36 @@
 /* ************************************************************************** */
 /*                                                                            */
 /*                                                       :::      ::::::::    */
-/*   main.c                                            :+:      :+:    :+:    */
+/*   cleaner.c                                         :+:      :+:    :+:    */
 /*                                                   +:+ +:+         +:+      */
 /*   By: username <username@student.42tokyo.jp>    #+#  +:+       +#+         */
 /*                                               +#+#+#+#+#+   +#+            */
-/*   Created: 2026/06/22 13:06:47 by username         #+#    #+#              */
-/*   Updated: 2026/06/24 16:17:29 by username        ###   ########.fr        */
+/*   Created: 2026/06/23 21:29:26 by username         #+#    #+#              */
+/*   Updated: 2026/06/24 16:17:55 by username        ###   ########.fr        */
 /*                                                                            */
 /* ************************************************************************** */
 
 #include "../includes/threads.h"
 
-int	main(int argc, char **argv)
+t_queue	*deletefirst(t_queue **head)
 {
-	int	*data;
+	t_queue	*first_node;
 
-	if (argc != 9)
+	if (*head == NULL)
+		return (NULL);
+	first_node = *head;
+	*head = (*head)->next;
+	first_node->next = NULL;
+	return (first_node);
+}
+
+void free_all(t_dongle	*dongles, t_coder *coders)
+{
+	if (coders != NULL)
 	{
-		printf("Error: Expected 8 arguments, but received %d.\n", argc - 1);
-		return (1);
+		free(coders[0].check_time);
+		free(coders);
 	}
-	data = parser(argc - 1, argv);
-	if (data == NULL)
-		return (1);
-	ft_codexion(data);
-	free(data);
-	return (0);
+	if (dongles != NULL)
+		free(dongles);
 }

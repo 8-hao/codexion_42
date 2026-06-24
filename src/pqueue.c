@@ -6,17 +6,17 @@
 /*   By: username <username@student.42tokyo.jp>    #+#  +:+       +#+         */
 /*                                               +#+#+#+#+#+   +#+            */
 /*   Created: 2026/06/22 13:06:18 by username         #+#    #+#              */
-/*   Updated: 2026/06/23 21:28:59 by username        ###   ########.fr        */
+/*   Updated: 2026/06/24 16:17:21 by username        ###   ########.fr        */
 /*                                                                            */
 /* ************************************************************************** */
 
 #include "../includes/threads.h"
 
-Queue	*newnode(Coder *c, int index)
+t_queue	*newnode(t_coder *c, int index)
 {
-	Queue	*node;
+	t_queue	*node;
 
-	node = malloc(sizeof(Queue));
+	node = malloc(sizeof(t_queue));
 	if (node == NULL)
 		return (NULL);
 	node->c = c;
@@ -25,9 +25,9 @@ Queue	*newnode(Coder *c, int index)
 	return (node);
 }
 
-void	add_back(Queue **head, Queue *node)
+void	add_back(t_queue **head, t_queue *node)
 {
-	Queue	*second;
+	t_queue	*second;
 
 	second = *head;
 	if (*head == NULL)
@@ -42,7 +42,7 @@ void	add_back(Queue **head, Queue *node)
 	second->next = node;
 }
 
-int	queuelen(Queue *head)
+int	queuelen(t_queue *head)
 {
 	int	i;
 
@@ -55,12 +55,12 @@ int	queuelen(Queue *head)
 	return (i);
 }
 
-void	sort_min(Queue **head)
+void	sort_min(t_queue **head)
 {
 	int		i;
 	int		ql;
-	Queue	*helper;
-	Coder	*c;
+	t_queue	*helper;
+	t_coder	*c;
 	int		tin;
 
 	i = 0;
@@ -85,7 +85,7 @@ void	sort_min(Queue **head)
 	}
 }
 
-int	is_inqueue(Queue *head, Coder *c)
+int	is_inqueue(t_queue *head, t_coder *c)
 {
 	while (head)
 	{

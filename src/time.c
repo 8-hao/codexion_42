@@ -22,7 +22,7 @@ long long	ft_time(void)
 	return (time);
 }
 
-int	ft_smartsleep(int time_to_sleep, Coder *c)
+int	ft_smartsleep(int time_to_sleep, t_coder *c)
 {
 	long long	current_time;
 
