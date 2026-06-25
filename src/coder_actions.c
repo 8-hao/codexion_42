@@ -65,8 +65,9 @@ int	acquire_dongle(t_coder *c, t_dongle *d, char ch)
 		if (is_inqueue(d->headq, c))
 		{
 			add_back(&d->headq, newnode(c, ft_time()));
-			if (d->arb == 2)
+			if (d->arb == 2){
 				sort_min(&d->headq);
+			}
 		}
 		ft_time_to_sleep(&tmp_dongle, d->cooldown - (ft_time() - d->release_time));
 		pthread_cond_timedwait(&d->cond_v, &d->mutex_v, &tmp_dongle);

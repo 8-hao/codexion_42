@@ -41,6 +41,7 @@ void	stop_all(t_monitor *m)
 		m->coders[i].stop = 1;
 		i++;
 	}
+	//pthread_cond_broadcast();
 }
 
 void	*monitor_func(void *monitor)

@@ -20,6 +20,17 @@
 # include <unistd.h>
 # include <sys/time.h>
 
+typedef struct info
+{
+	int time_to_burnout;
+	int number_OF_CODERS;
+	int ....
+	pthread_cond_t cond;
+	pthread_cond_t stop_cond;
+	pthread_mutex_t stop_mutex;
+} 
+
+
 typedef struct queue
 {
 	struct coder	*c;
@@ -50,6 +61,7 @@ typedef struct coder
 	int				compile_count;
 	int				finish;
 	int				stop;
+	struct info;
 	long long		last_compile_start;
 	t_dongle		*left_d;
 	t_dongle		*right_d;
