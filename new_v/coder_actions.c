@@ -38,6 +38,8 @@ int	compiling(t_coder *c)
 	pthread_mutex_lock(c->check_time);
 	if (c->stop)
 	{
+		pthread_mutex_unlock(&c->left_d->mutex_v);
+		pthread_mutex_unlock(&c->right_d->mutex_v);
 		pthread_mutex_unlock(c->check_time);
 		return 0;
 	}
@@ -66,7 +68,7 @@ int	acquire_dongle(t_coder *c, t_dongle *d, char ch)
 			pthread_mutex_unlock(&c->left_d->mutex_v);
 		return (0);
 	}
-    while (ft_time() - d->release_time < d->cooldown)
+    while (!c->stop && ft_time() - d->release_time < d->cooldown)
 	{
 		if (is_inqueue(d->headq, c))
 		{
@@ -77,6 +79,13 @@ int	acquire_dongle(t_coder *c, t_dongle *d, char ch)
 		}
 		ft_time_to_sleep(&tmp_dongle, d->cooldown - (ft_time() - d->release_time));
 		pthread_cond_timedwait(&d->cond_v, &d->mutex_v, &tmp_dongle);
+	}
+	if (c->stop)
+	{
+		pthread_mutex_unlock(&d->mutex_v);
+		if (ch == 'r')
+			pthread_mutex_unlock(&c->left_d->mutex_v);
+		return (0);
 	}
 	if (queuelen(d->headq) != 0 && c->id == d->headq->c->id)
 		free(deletefirst(&d->headq));

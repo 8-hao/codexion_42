@@ -68,6 +68,7 @@ static void	*monitor_func(void *monitor)
 			return (NULL);
 		usleep(1000);
 	}
+	
 	return (NULL);
 }
 
@@ -96,6 +97,7 @@ static void *coder_func(void *coders)
 	 		return (NULL);
 	 	c->compile_count = i;
     }
+	c->finish = 1;
     return NULL;
 }
 
