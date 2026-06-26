@@ -40,11 +40,33 @@ void free_all(t_dongle	*dongles, t_coder *coders, pthread_t *threads)
 {
 	if (coders != NULL)
 	{
-		//free(coders[0].check_time);
+		free(coders[0].check_time);
 		free(coders);
 	}
 	if (dongles != NULL)
 		free(dongles);
     if (threads != NULL)
 		free(threads);
+}
+
+void	check_finished(t_monitor *m, int i, int *finished, int *counter)
+{
+	if (m->coders[i].finish == 1)
+	{
+		(*finished)++;
+		if (m->coders[i].compile_count == m->coders[i].shared->n_compiles)
+			(*counter)++;
+	}
+}
+
+t_queue	*deletefirst(t_queue **head)
+{
+	t_queue	*first_node;
+
+	if (*head == NULL)
+		return (NULL);
+	first_node = *head;
+	*head = (*head)->next;
+	first_node->next = NULL;
+	return (first_node);
 }

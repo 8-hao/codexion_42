@@ -15,23 +15,30 @@ t_dongle	*dongles_initializer(t_shared *data)
 		pthread_cond_init(&dongles[i].cond_v, NULL);
 		dongles[i].cooldown = data->d_cooldown;
 		dongles[i].is_available = 1;
+		dongles[i].headq = NULL;
 		i++;
 	}
 	return (dongles);
 }
-
+void	monitor_init(t_monitor *monitor, t_dongle *dongles, t_coder *c)
+{
+	(*monitor).coders = c;
+	(*monitor).dongles = dongles;
+	(*monitor).num_of_coders = c[0].shared->n_coders;
+}
 t_coder	*coders_init(t_shared *data, t_dongle *dongles)
 {
 	int				i;
 	t_coder			*coders;
-    //pthread_mutex_t	*check_time;
+    pthread_mutex_t	*check_time;
 
 	coders = malloc(sizeof(t_coder) * data->n_coders);
 	if (coders == NULL)
 		return (NULL);
-    // check_time = malloc(sizeof(pthread_mutex_t) * data->n_coders);
-    // if (check_time == NULL)
-	// 	return (free(dongles), free(coders),NULL);
+    check_time = malloc(sizeof(pthread_mutex_t) * data->n_coders);
+    if (check_time == NULL)
+	 	return (free(dongles), free(coders),NULL);
+	i = 0 ;
 	while (i < data->n_coders)
 	{
 		coders[i].id = i + 1;
@@ -47,7 +54,8 @@ t_coder	*coders_init(t_shared *data, t_dongle *dongles)
 		}
         coders[i].shared = data;
 		coders[i].compile_count = 0;
-		//coders[i].check_time = &check_time[i];
+		coders[i].check_time = &check_time[i];
+		pthread_mutex_init(&check_time[i], NULL);
 		coders[i].finish = 0;
 		coders[i].stop = 0;
 		i++;
@@ -77,12 +85,12 @@ int threads_init(pthread_t *t, t_coder *coders, void * (*f)(void *))
     return 1;
 }
 
-void	threads_join(pthread_t *threads, int n)
+void	threads_join(pthread_t *threads, int n, pthread_t id_monitor)
 {
 	int	i;
 
 	i = 0;
 	while (i < n)
 		pthread_join(threads[i++], NULL);
-	//pthread_join(id_monitor, NULL);
+	pthread_join(id_monitor, NULL);
 }

@@ -1,5 +1,5 @@
 #include "codexion.h"
-
+ 
 void	release_dongle(t_dongle *d)
 {
 	d->is_available = 1;
@@ -7,11 +7,43 @@ void	release_dongle(t_dongle *d)
 	pthread_mutex_unlock(&d->mutex_v);
 }
 
+int	debug_and_refactor(t_coder *c)
+{
+	pthread_mutex_lock(c->check_time);
+	if (c->stop)
+	{
+		pthread_mutex_unlock(c->check_time);
+		return 0;
+	}
+	printf("%lld %d is debugging\n", ft_time() - c->init_time, c->id);
+	pthread_mutex_unlock(c->check_time);
+	if (ft_smartsleep(c->shared->t_debug, c) == 0)
+		return (0);
+	pthread_mutex_lock(c->check_time);
+	if (c->stop)
+	{
+		pthread_mutex_unlock(c->check_time);
+		return 0;
+	}
+	printf("%lld %d is refactoring\n", ft_time() - c->init_time, c->id);
+	pthread_mutex_unlock(c->check_time);
+	if (ft_smartsleep(c->shared->t_refactor, c) == 0)
+		return (0);
+	return (1);
+}
 int	compiling(t_coder *c)
 {
 	int	r;
 
+	pthread_mutex_lock(c->check_time);
+	if (c->stop)
+	{
+		pthread_mutex_unlock(c->check_time);
+		return 0;
+	}
 	printf("%lld %d is compiling\n", ft_time() - c->init_time, c->id);
+	c->last_compile_start = ft_time();
+	pthread_mutex_unlock(c->check_time);
 	r = ft_smartsleep(c->shared->t_compile, c);
 	if (r == 0)
 	{
@@ -19,9 +51,6 @@ int	compiling(t_coder *c)
 		pthread_mutex_unlock(&c->right_d->mutex_v);
 		return (r);
 	}
-	pthread_mutex_lock(c->check_time);
-	c->last_compile_start = ft_time();
-	pthread_mutex_unlock(c->check_time);
 	return (r);
 }
 
@@ -39,18 +68,18 @@ int	acquire_dongle(t_coder *c, t_dongle *d, char ch)
 	}
     while (ft_time() - d->release_time < d->cooldown)
 	{
-		// if (is_inqueue(d->headq, c))
-		// {
-		// 	add_back(&d->headq, newnode(c, ft_time()));
-		// 	if (d->arb == 2){
-		// 		sort_min(&d->headq);
-		// 	}
-		// }
+		if (is_inqueue(d->headq, c))
+		{
+			add_back(&d->headq, newnode(c, ft_time()));
+			if (d->arb == 2){
+				sort_min(&d->headq);
+			}
+		}
 		ft_time_to_sleep(&tmp_dongle, d->cooldown - (ft_time() - d->release_time));
 		pthread_cond_timedwait(&d->cond_v, &d->mutex_v, &tmp_dongle);
 	}
-	// if (queuelen(d->headq) != 0 && c->id == d->headq->c->id)
-	// 	free(deletefirst(&d->headq));
+	if (queuelen(d->headq) != 0 && c->id == d->headq->c->id)
+		free(deletefirst(&d->headq));
 	printf("%lld %d has taken a dongle\n", ft_time() - c->init_time, c->id);
 	return (1);
 }
