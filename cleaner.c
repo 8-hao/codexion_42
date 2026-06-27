@@ -63,10 +63,17 @@ void	free_all(t_dongle *dongles, t_coder *coders, pthread_t *threads)
 
 void	check_finished(t_monitor *m, int i, int *finished, int *counter)
 {
-	if (m->coders[i].finish == 1)
+	int n;
+	int compile_count;
+
+	pthread_mutex_lock(m->coders[i].check_time);
+	n = m->coders[i].finish;
+	compile_count = m->coders[i].compile_count;
+	pthread_mutex_unlock(m->coders[i].check_time);
+	if (n == 1)
 	{
 		(*finished)++;
-		if (m->coders[i].compile_count == m->coders[i].shared->n_compiles)
+		if (compile_count == m->coders[i].shared->n_compiles)
 			(*counter)++;
 	}
 }

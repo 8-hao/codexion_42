@@ -30,6 +30,7 @@ typedef struct shared
 	int		n_compiles;
 	int		d_cooldown;
 	char	c;
+	pthread_mutex_t	p_safe;
 
 }	t_shared;
 
@@ -92,7 +93,7 @@ int	queuelen(t_queue *head);
 int	is_inqueue(t_queue *head, t_coder *c);
 
 void	monitor_init(t_monitor *monitor, t_dongle *dongles, t_coder *c);
-void	release_dongle(t_dongle *d);
+void	release_dongle(t_coder *c, t_dongle *d);
 void	threads_join(pthread_t *threads, int n, pthread_t id_monitor);
 void	ft_time_to_sleep(struct timespec *t, int delay_ms);
 void	free_all(t_dongle *dongles, t_coder *coders, pthread_t *threads);

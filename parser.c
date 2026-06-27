@@ -76,6 +76,13 @@ static t_shared	*shared_init(int *data)
 	t_shared	*shared;
 
 	shared = malloc(sizeof(t_shared));
+	if (shared == NULL)
+		return (NULL);
+	if (pthread_mutex_init(&shared->p_safe, NULL) != 0)
+	{
+		free(shared);
+		return NULL;
+	}
 	shared->n_coders = data[0];
 	shared->t_burnout = data[1];
 	shared->t_compile = data[2];

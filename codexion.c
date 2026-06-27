@@ -17,13 +17,15 @@ int	check_burnout(t_monitor *m, int i)
 	long long	current_time;
 	long long	last_compile_start;
 	long long	time_to_burnout;
+	int n;
 
 	pthread_mutex_lock(m->coders[i].check_time);
 	current_time = ft_time();
 	last_compile_start = m->coders[i].last_compile_start;
 	time_to_burnout = m->coders[i].shared->t_burnout;
+	n = m->coders[i].finish;
 	pthread_mutex_unlock(m->coders[i].check_time);
-	if (current_time - last_compile_start >= time_to_burnout && m->coders[i].finish == 0)
+	if (current_time - last_compile_start >= time_to_burnout && n == 0)
 	{
 		printf("%lld %d is burned out\n", current_time - m->coders[i].init_time, m->coders[i].id);
 		return (1);
@@ -41,9 +43,7 @@ void	stop_all(t_monitor *m)
 		m->coders[i].stop = 1;
 		i++;
 	}
-	//pthread_cond_broadcast();
 }
-
 void	wake_all_dongles(t_monitor *m)
 {
 	int	i;
@@ -102,15 +102,19 @@ static void	*coder_func(void *coders)
 			return (NULL);
 		if (compiling(c) == 0)
 			return (NULL);
-		release_dongle(c->left_d);
-		release_dongle(c->right_d);
+		release_dongle(c, c->left_d);
+		release_dongle(c, c->right_d);
 		if (c->stop)
 			return (NULL);
 		if (debug_and_refactor(c) == 0)
 			return (NULL);
+		pthread_mutex_lock(c->check_time);
 		c->compile_count = i;
+		pthread_mutex_unlock(c->check_time);
 	}
+	pthread_mutex_lock(c->check_time);
 	c->finish = 1;
+	pthread_mutex_unlock(c->check_time);
 	return (NULL);
 }
 

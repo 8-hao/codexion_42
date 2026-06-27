@@ -12,10 +12,12 @@
 
 #include "codexion.h"
 
-void	release_dongle(t_dongle *d)
+void	release_dongle(t_coder *c, t_dongle *d)
 {
+	pthread_mutex_lock(c->check_time);
 	d->is_available = 1;
 	d->release_time = ft_time();
+	pthread_mutex_unlock(c->check_time);
 	pthread_mutex_unlock(&d->mutex_v);
 }
 
@@ -27,8 +29,11 @@ int	debug_and_refactor(t_coder *c)
 		pthread_mutex_unlock(c->check_time);
 		return (0);
 	}
-	printf("%lld %d is debugging\n", ft_time() - c->init_time, c->id);
 	pthread_mutex_unlock(c->check_time);
+
+	pthread_mutex_lock(&c->shared->p_safe);
+	printf("%lld %d is debugging\n", ft_time() - c->init_time, c->id);
+	pthread_mutex_unlock(&c->shared->p_safe);
 	if (ft_smartsleep(c->shared->t_debug, c) == 0)
 		return (0);
 	pthread_mutex_lock(c->check_time);
@@ -37,8 +42,10 @@ int	debug_and_refactor(t_coder *c)
 		pthread_mutex_unlock(c->check_time);
 		return (0);
 	}
-	printf("%lld %d is refactoring\n", ft_time() - c->init_time, c->id);
 	pthread_mutex_unlock(c->check_time);
+	pthread_mutex_lock(&c->shared->p_safe);
+	printf("%lld %d is refactoring\n", ft_time() - c->init_time, c->id);
+	pthread_mutex_unlock(&c->shared->p_safe);
 	if (ft_smartsleep(c->shared->t_refactor, c) == 0)
 		return (0);
 	return (1);
@@ -56,7 +63,9 @@ int	compiling(t_coder *c)
 		pthread_mutex_unlock(c->check_time);
 		return (0);
 	}
+	pthread_mutex_lock(&c->shared->p_safe);
 	printf("%lld %d is compiling\n", ft_time() - c->init_time, c->id);
+	pthread_mutex_unlock(&c->shared->p_safe);
 	c->last_compile_start = ft_time();
 	pthread_mutex_unlock(c->check_time);
 	r = ft_smartsleep(c->shared->t_compile, c);
@@ -103,6 +112,8 @@ int	acquire_dongle(t_coder *c, t_dongle *d, char ch)
 	}
 	if (queuelen(d->headq) != 0 && c->id == d->headq->c->id)
 		free(deletefirst(&d->headq));
+	pthread_mutex_lock(&c->shared->p_safe);
 	printf("%lld %d has taken a dongle\n", ft_time() - c->init_time, c->id);
+	pthread_mutex_unlock(&c->shared->p_safe);
 	return (1);
 }
