@@ -5,12 +5,12 @@
 /*                                                   +:+ +:+         +:+      */
 /*   By: username <username@student.42tokyo.jp>    #+#  +:+       +#+         */
 /*                                               +#+#+#+#+#+   +#+            */
-/*   Created: 2026/06/22 13:06:18 by username         #+#    #+#              */
-/*   Updated: 2026/06/24 16:17:21 by username        ###   ########.fr        */
+/*   Created: 2026/06/27 10:24:46 by username         #+#    #+#              */
+/*   Updated: 2026/06/27 10:24:46 by username        ###   ########.fr        */
 /*                                                                            */
 /* ************************************************************************** */
 
-#include "../includes/threads.h"
+#include "codexion.h"
 
 t_queue	*newnode(t_coder *c, int index)
 {

@@ -1,3 +1,14 @@
+/* ************************************************************************** */
+/*                                                                            */
+/*                                                       :::      ::::::::    */
+/*   parser.c                                          :+:      :+:    :+:    */
+/*                                                   +:+ +:+         +:+      */
+/*   By: username <username@student.42tokyo.jp>    #+#  +:+       +#+         */
+/*                                               +#+#+#+#+#+   +#+            */
+/*   Created: 2026/06/27 10:24:40 by username         #+#    #+#              */
+/*   Updated: 2026/06/27 10:24:40 by username        ###   ########.fr        */
+/*                                                                            */
+/* ************************************************************************** */
 
 #include "codexion.h"
 
@@ -60,27 +71,27 @@ static int	ft_scheduler(char *value)
 	return (0);
 }
 
-static t_shared *shared_init(int *data)
+static t_shared	*shared_init(int *data)
 {
-	t_shared *shared;
+	t_shared	*shared;
 
-    shared = malloc(sizeof(t_shared));
+	shared = malloc(sizeof(t_shared));
 	shared->n_coders = data[0];
-    shared->t_burnout =  data[1];
+	shared->t_burnout = data[1];
 	shared->t_compile = data[2];
 	shared->t_debug = data[3];
 	shared->t_refactor = data[4];
-    shared->n_compiles=  data[5];
-    shared->d_cooldown= data[6];
-    shared->c= data[7];
+	shared->n_compiles = data[5];
+	shared->d_cooldown = data[6];
+	shared->c = data[7];
 	free(data);
-	return shared;
+	return (shared);
 }
 
-t_shared *parser(int argc, char **argv)
+t_shared	*parser(int argc, char **argv)
 {
 	int	i;
-	int *data;
+	int	*data;
 	int	a;
 
 	i = 1;
@@ -104,5 +115,5 @@ t_shared *parser(int argc, char **argv)
 	if (!a)
 		return (free(data), NULL);
 	data[i - 1] = a;
-	return shared_init(data);
+	return (shared_init(data));
 }

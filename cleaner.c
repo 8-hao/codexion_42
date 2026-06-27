@@ -1,3 +1,15 @@
+/* ************************************************************************** */
+/*                                                                            */
+/*                                                       :::      ::::::::    */
+/*   cleaner.c                                         :+:      :+:    :+:    */
+/*                                                   +:+ +:+         +:+      */
+/*   By: username <username@student.42tokyo.jp>    #+#  +:+       +#+         */
+/*                                               +#+#+#+#+#+   +#+            */
+/*   Created: 2026/06/27 10:23:56 by username         #+#    #+#              */
+/*   Updated: 2026/06/27 10:24:01 by username        ###   ########.fr        */
+/*                                                                            */
+/* ************************************************************************** */
+
 #include "codexion.h"
 
 long long	ft_time(void)
@@ -36,7 +48,7 @@ int	ft_smartsleep(int time_to_sleep, t_coder *c)
 	return (1);
 }
 
-void free_all(t_dongle	*dongles, t_coder *coders, pthread_t *threads)
+void	free_all(t_dongle *dongles, t_coder *coders, pthread_t *threads)
 {
 	if (coders != NULL)
 	{
@@ -45,7 +57,7 @@ void free_all(t_dongle	*dongles, t_coder *coders, pthread_t *threads)
 	}
 	if (dongles != NULL)
 		free(dongles);
-    if (threads != NULL)
+	if (threads != NULL)
 		free(threads);
 }
 
