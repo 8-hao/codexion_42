@@ -1,12 +1,12 @@
 /* ************************************************************************** */
 /*                                                                            */
-/*                                                       :::      ::::::::    */
-/*   codexion.c                                        :+:      :+:    :+:    */
-/*                                                   +:+ +:+         +:+      */
-/*   By: username <username@student.42tokyo.jp>    #+#  +:+       +#+         */
-/*                                               +#+#+#+#+#+   +#+            */
-/*   Created: 2026/06/27 10:24:17 by username         #+#    #+#              */
-/*   Updated: 2026/06/27 10:24:17 by username        ###   ########.fr        */
+/*                                                        :::      ::::::::   */
+/*   codexion.c                                         :+:      :+:    :+:   */
+/*                                                    +:+ +:+         +:+     */
+/*   By: obakri <obakri@student.42.fr>              +#+  +:+       +#+        */
+/*                                                +#+#+#+#+#+   +#+           */
+/*   Created: 2026/06/27 22:22:11 by obakri            #+#    #+#             */
+/*   Updated: 2026/06/27 22:22:14 by obakri           ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -17,7 +17,7 @@ int	check_burnout(t_monitor *m, int i)
 	long long	current_time;
 	long long	last_compile_start;
 	long long	time_to_burnout;
-	int n;
+	int			n;
 
 	pthread_mutex_lock(m->coders[i].check_time);
 	current_time = ft_time();
@@ -40,10 +40,13 @@ void	stop_all(t_monitor *m)
 	i = 0;
 	while (i < m->num_of_coders)
 	{
+		pthread_mutex_lock(m->coders[i].check_time);
 		m->coders[i].stop = 1;
+		pthread_mutex_unlock(m->coders[i].check_time);
 		i++;
 	}
 }
+
 void	wake_all_dongles(t_monitor *m)
 {
 	int	i;
@@ -94,8 +97,13 @@ static void	*coder_func(void *coders)
 	i = 0;
 	while (i++ < c->shared->n_compiles)
 	{
+		pthread_mutex_lock(c->check_time);
 		if (c->stop)
+		{
+			pthread_mutex_unlock(c->check_time);
 			return (NULL);
+		}
+		pthread_mutex_unlock(c->check_time);
 		if (acquire_dongle(c, c->left_d, 'l') == 0)
 			return (NULL);
 		if (acquire_dongle(c, c->right_d, 'r') == 0)
@@ -151,5 +159,3 @@ void	ft_codexion(t_shared *data)
 	threads_join(threads, data->n_coders, id_monitor);
 	free_all(dongles, coders, threads);
 }
-
-//15:34

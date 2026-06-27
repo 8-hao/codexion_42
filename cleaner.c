@@ -1,12 +1,12 @@
 /* ************************************************************************** */
 /*                                                                            */
-/*                                                       :::      ::::::::    */
-/*   cleaner.c                                         :+:      :+:    :+:    */
-/*                                                   +:+ +:+         +:+      */
-/*   By: username <username@student.42tokyo.jp>    #+#  +:+       +#+         */
-/*                                               +#+#+#+#+#+   +#+            */
-/*   Created: 2026/06/27 10:23:56 by username         #+#    #+#              */
-/*   Updated: 2026/06/27 10:24:01 by username        ###   ########.fr        */
+/*                                                        :::      ::::::::   */
+/*   cleaner.c                                          :+:      :+:    :+:   */
+/*                                                    +:+ +:+         +:+     */
+/*   By: obakri <obakri@student.42.fr>              +#+  +:+       +#+        */
+/*                                                +#+#+#+#+#+   +#+           */
+/*   Created: 2026/06/27 22:21:24 by obakri            #+#    #+#             */
+/*   Updated: 2026/06/27 22:21:31 by obakri           ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -40,8 +40,13 @@ int	ft_smartsleep(int time_to_sleep, t_coder *c)
 	current_time = 0;
 	while (current_time < time_to_sleep * 1000)
 	{
+		pthread_mutex_lock(c->check_time);
 		if (c->stop)
+		{
+			pthread_mutex_unlock(c->check_time);
 			return (0);
+		}
+		pthread_mutex_unlock(c->check_time);
 		current_time += 500;
 		usleep(500);
 	}
@@ -63,8 +68,8 @@ void	free_all(t_dongle *dongles, t_coder *coders, pthread_t *threads)
 
 void	check_finished(t_monitor *m, int i, int *finished, int *counter)
 {
-	int n;
-	int compile_count;
+	int	n;
+	int	compile_count;
 
 	pthread_mutex_lock(m->coders[i].check_time);
 	n = m->coders[i].finish;

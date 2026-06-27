@@ -1,14 +1,15 @@
 /* ************************************************************************** */
 /*                                                                            */
-/*                                                       :::      ::::::::    */
-/*   initializer.c                                     :+:      :+:    :+:    */
-/*                                                   +:+ +:+         +:+      */
-/*   By: username <username@student.42tokyo.jp>    #+#  +:+       +#+         */
-/*                                               +#+#+#+#+#+   +#+            */
-/*   Created: 2026/06/27 10:24:30 by username         #+#    #+#              */
-/*   Updated: 2026/06/27 10:24:30 by username        ###   ########.fr        */
+/*                                                        :::      ::::::::   */
+/*   initializer.c                                      :+:      :+:    :+:   */
+/*                                                    +:+ +:+         +:+     */
+/*   By: obakri <obakri@student.42.fr>              +#+  +:+       +#+        */
+/*                                                +#+#+#+#+#+   +#+           */
+/*   Created: 2026/06/27 22:22:31 by obakri            #+#    #+#             */
+/*   Updated: 2026/06/27 22:22:33 by obakri           ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
+
 
 #include "codexion.h"
 
@@ -33,7 +34,7 @@ t_dongle	*dongles_initializer(t_shared *data)
 	}
 	return (dongles);
 }
- 
+
 void	monitor_init(t_monitor *monitor, t_dongle *dongles, t_coder *c)
 {
 	(*monitor).coders = c;
@@ -78,7 +79,7 @@ t_coder	*coders_init(t_shared *data, t_dongle *dongles)
 	}
 	return (coders);
 }
- 
+
 int	threads_init(pthread_t *t, t_coder *coders, void * (*f)(void *))
 {
 	t_dongle	*dongles;

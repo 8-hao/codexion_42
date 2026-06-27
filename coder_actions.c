@@ -1,12 +1,12 @@
 /* ************************************************************************** */
 /*                                                                            */
-/*                                                       :::      ::::::::    */
-/*   coder_actions.c                                   :+:      :+:    :+:    */
-/*                                                   +:+ +:+         +:+      */
-/*   By: username <username@student.42tokyo.jp>    #+#  +:+       +#+         */
-/*                                               +#+#+#+#+#+   +#+            */
-/*   Created: 2026/06/27 10:24:07 by username         #+#    #+#              */
-/*   Updated: 2026/06/27 10:24:07 by username        ###   ########.fr        */
+/*                                                        :::      ::::::::   */
+/*   coder_actions.c                                    :+:      :+:    :+:   */
+/*                                                    +:+ +:+         +:+     */
+/*   By: obakri <obakri@student.42.fr>              +#+  +:+       +#+        */
+/*                                                +#+#+#+#+#+   +#+           */
+/*   Created: 2026/06/27 22:22:01 by obakri            #+#    #+#             */
+/*   Updated: 2026/06/27 22:22:03 by obakri           ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -30,7 +30,6 @@ int	debug_and_refactor(t_coder *c)
 		return (0);
 	}
 	pthread_mutex_unlock(c->check_time);
-
 	pthread_mutex_lock(&c->shared->p_safe);
 	printf("%lld %d is debugging\n", ft_time() - c->init_time, c->id);
 	pthread_mutex_unlock(&c->shared->p_safe);
@@ -83,13 +82,16 @@ int	acquire_dongle(t_coder *c, t_dongle *d, char ch)
 	struct timespec	tmp_dongle;
 
 	pthread_mutex_lock(&d->mutex_v);
+	pthread_mutex_lock(c->check_time);
 	if (c->stop)
 	{
 		pthread_mutex_unlock(&d->mutex_v);
 		if (ch == 'r')
 			pthread_mutex_unlock(&c->left_d->mutex_v);
+		pthread_mutex_unlock(c->check_time);
 		return (0);
 	}
+	pthread_mutex_unlock(c->check_time);
 	while (!c->stop && ft_time() - d->release_time < d->cooldown)
 	{
 		if (is_inqueue(d->headq, c))
@@ -103,13 +105,16 @@ int	acquire_dongle(t_coder *c, t_dongle *d, char ch)
 		ft_time_to_sleep(&tmp_dongle, d->cooldown - (ft_time() - d->release_time));
 		pthread_cond_timedwait(&d->cond_v, &d->mutex_v, &tmp_dongle);
 	}
+	pthread_mutex_lock(c->check_time);
 	if (c->stop)
 	{
 		pthread_mutex_unlock(&d->mutex_v);
 		if (ch == 'r')
 			pthread_mutex_unlock(&c->left_d->mutex_v);
+		pthread_mutex_unlock(c->check_time);
 		return (0);
 	}
+	pthread_mutex_unlock(c->check_time);
 	if (queuelen(d->headq) != 0 && c->id == d->headq->c->id)
 		free(deletefirst(&d->headq));
 	pthread_mutex_lock(&c->shared->p_safe);

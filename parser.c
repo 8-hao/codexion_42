@@ -1,14 +1,15 @@
 /* ************************************************************************** */
 /*                                                                            */
-/*                                                       :::      ::::::::    */
-/*   parser.c                                          :+:      :+:    :+:    */
-/*                                                   +:+ +:+         +:+      */
-/*   By: username <username@student.42tokyo.jp>    #+#  +:+       +#+         */
-/*                                               +#+#+#+#+#+   +#+            */
-/*   Created: 2026/06/27 10:24:40 by username         #+#    #+#              */
-/*   Updated: 2026/06/27 10:24:40 by username        ###   ########.fr        */
+/*                                                        :::      ::::::::   */
+/*   parser.c                                           :+:      :+:    :+:   */
+/*                                                    +:+ +:+         +:+     */
+/*   By: obakri <obakri@student.42.fr>              +#+  +:+       +#+        */
+/*                                                +#+#+#+#+#+   +#+           */
+/*   Created: 2026/06/27 22:22:51 by obakri            #+#    #+#             */
+/*   Updated: 2026/06/27 22:22:54 by obakri           ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
+
 
 #include "codexion.h"
 
@@ -81,7 +82,7 @@ static t_shared	*shared_init(int *data)
 	if (pthread_mutex_init(&shared->p_safe, NULL) != 0)
 	{
 		free(shared);
-		return NULL;
+		return (NULL);
 	}
 	shared->n_coders = data[0];
 	shared->t_burnout = data[1];
