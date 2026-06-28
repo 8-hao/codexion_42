@@ -109,13 +109,12 @@ t_shared	*parser(int argc, char **argv)
 	{
 		if (ft_isdigit(argv[i]) == -1)
 			return (free(data), NULL);
-		a = atoi(argv[i]);
-		if (i != 7 && a == 0)
+		if (i != 7 && atoi(argv[i] == 0))
 		{
 			printf("0 is not a valid integer value (max: 2147483647)\n");
 			return (free(data), NULL);
 		}
-		data[i - 1] = a;
+		data[i - 1] = atoi(argv[i]);
 		i++;
 	}
 	a = ft_scheduler(argv[i]);
