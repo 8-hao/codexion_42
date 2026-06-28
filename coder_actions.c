@@ -5,8 +5,8 @@
 /*                                                    +:+ +:+         +:+     */
 /*   By: obakri <obakri@student.42.fr>              +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
-/*   Created: 2026/06/27 22:22:01 by obakri            #+#    #+#             */
-/*   Updated: 2026/06/27 22:22:03 by obakri           ###   ########.fr       */
+/*   Created: 2026/06/28 01:37:23 by obakri            #+#    #+#             */
+/*   Updated: 2026/06/28 01:37:46 by obakri           ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -79,42 +79,24 @@ int	compiling(t_coder *c)
 
 int	acquire_dongle(t_coder *c, t_dongle *d, char ch)
 {
-	struct timespec	tmp_dongle;
+	struct timespec	tmp;
 
 	pthread_mutex_lock(&d->mutex_v);
-	pthread_mutex_lock(c->check_time);
-	if (c->stop)
-	{
-		pthread_mutex_unlock(&d->mutex_v);
-		if (ch == 'r')
-			pthread_mutex_unlock(&c->left_d->mutex_v);
-		pthread_mutex_unlock(c->check_time);
-		return (0);
-	}
-	pthread_mutex_unlock(c->check_time);
+	if (is_stopped(c))
+		return (abort_acquire(c, d, ch));
 	while (!c->stop && ft_time() - d->release_time < d->cooldown)
 	{
 		if (is_inqueue(d->headq, c))
 		{
 			add_back(&d->headq, newnode(c, ft_time()));
 			if (d->arb == 2)
-			{
 				sort_min(&d->headq);
-			}
 		}
-		ft_time_to_sleep(&tmp_dongle, d->cooldown - (ft_time() - d->release_time));
-		pthread_cond_timedwait(&d->cond_v, &d->mutex_v, &tmp_dongle);
+		ft_time_to_sleep(&tmp, d->cooldown - (ft_time() - d->release_time));
+		pthread_cond_timedwait(&d->cond_v, &d->mutex_v, &tmp);
 	}
-	pthread_mutex_lock(c->check_time);
-	if (c->stop)
-	{
-		pthread_mutex_unlock(&d->mutex_v);
-		if (ch == 'r')
-			pthread_mutex_unlock(&c->left_d->mutex_v);
-		pthread_mutex_unlock(c->check_time);
-		return (0);
-	}
-	pthread_mutex_unlock(c->check_time);
+	if (is_stopped(c))
+		return (abort_acquire(c, d, ch));
 	if (queuelen(d->headq) != 0 && c->id == d->headq->c->id)
 		free(deletefirst(&d->headq));
 	pthread_mutex_lock(&c->shared->p_safe);

@@ -12,47 +12,6 @@
 
 #include "codexion.h"
 
-long long	ft_time(void)
-{
-	struct timeval	d;
-	long long		time;
-
-	gettimeofday(&d, NULL);
-	time = d.tv_sec * 1000 + d.tv_usec / 1000;
-	return (time);
-}
-
-void	ft_time_to_sleep(struct timespec *t, int delay_ms)
-{
-	struct timeval	d;
-	long long		total_nsec;
-
-	gettimeofday(&d, NULL);
-	total_nsec = (long long) d.tv_usec * 1000 + (long long) delay_ms * 1000000;
-	t->tv_sec = d.tv_sec + (total_nsec / 1000000000);
-	t->tv_nsec = total_nsec % 1000000000;
-}
-
-int	ft_smartsleep(int time_to_sleep, t_coder *c)
-{
-	long long	current_time;
-
-	current_time = 0;
-	while (current_time < time_to_sleep * 1000)
-	{
-		pthread_mutex_lock(c->check_time);
-		if (c->stop)
-		{
-			pthread_mutex_unlock(c->check_time);
-			return (0);
-		}
-		pthread_mutex_unlock(c->check_time);
-		current_time += 500;
-		usleep(500);
-	}
-	return (1);
-}
-
 void	free_all(t_dongle *dongles, t_coder *coders, pthread_t *threads)
 {
 	if (coders != NULL)
@@ -64,6 +23,20 @@ void	free_all(t_dongle *dongles, t_coder *coders, pthread_t *threads)
 		free(dongles);
 	if (threads != NULL)
 		free(threads);
+}
+
+void	stop_all(t_monitor *m)
+{
+	int	i;
+
+	i = 0;
+	while (i < m->num_of_coders)
+	{
+		pthread_mutex_lock(m->coders[i].check_time);
+		m->coders[i].stop = 1;
+		pthread_mutex_unlock(m->coders[i].check_time);
+		i++;
+	}
 }
 
 void	check_finished(t_monitor *m, int i, int *finished, int *counter)
@@ -93,4 +66,14 @@ t_queue	*deletefirst(t_queue **head)
 	*head = (*head)->next;
 	first_node->next = NULL;
 	return (first_node);
+}
+
+int	is_stopped(t_coder *c)
+{
+	int	s;
+
+	pthread_mutex_lock(c->check_time);
+	s = c->stop;
+	pthread_mutex_unlock(c->check_time);
+	return (s);
 }

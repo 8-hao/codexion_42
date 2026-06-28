@@ -10,7 +10,6 @@
 /*                                                                            */
 /* ************************************************************************** */
 
-
 #include "codexion.h"
 
 t_queue	*newnode(t_coder *c, int index)
@@ -66,7 +65,7 @@ void	sort_min(t_queue **head)
 
 	i = 0;
 	ql = queuelen(*head);
-	while (i < ql)
+	while (i++ < ql)
 	{
 		helper = *head;
 		while (helper && helper->next)
@@ -82,7 +81,6 @@ void	sort_min(t_queue **head)
 			}
 			helper = helper->next;
 		}
-		i++;
 	}
 }
 

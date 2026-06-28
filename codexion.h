@@ -5,8 +5,8 @@
 /*                                                    +:+ +:+         +:+     */
 /*   By: obakri <obakri@student.42.fr>              +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
-/*   Created: 2026/06/27 22:22:21 by obakri            #+#    #+#             */
-/*   Updated: 2026/06/27 22:35:49 by obakri           ###   ########.fr       */
+/*   Created: 2026/06/28 00:25:39 by obakri            #+#    #+#             */
+/*   Updated: 2026/06/28 00:25:45 by obakri           ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -80,12 +80,14 @@ t_queue		*deletefirst(t_queue **head);
 
 long long	ft_time(void);
 
+int			is_stopped(t_coder *c);
 int			queuelen(t_queue *head);
 int			is_inqueue(t_queue *head, t_coder *c);
 int			ft_smartsleep(int time_to_sleep, t_coder *c);
 int			acquire_dongle(t_coder *c, t_dongle *d, char ch);
 int			compiling(t_coder *c);
 int			debug_and_refactor(t_coder *c);
+int			abort_acquire(t_coder *c, t_dongle *d, char ch);
 int			threads_init(pthread_t *threads, t_coder *c, void *(*f)(void *));
 
 void		threads_join(pthread_t *threads, int n, pthread_t	id_monitor);
@@ -97,5 +99,9 @@ void		ft_time_to_sleep(struct timespec *t, int delay_ms);
 void		add_back(t_queue **head, t_queue *node);
 void		sort_min(t_queue **head);
 void		monitor_init(t_monitor *monitor, t_dongle *dongles, t_coder	*c);
+void		stop_all(t_monitor *m);
+void		set_compile_count(t_coder *c, int i);
+void		set_finish(t_coder *c);
+void		set_dongle_pair(t_coder *coders, t_dongle *dongles, int i, int n);
 
 #endif

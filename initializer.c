@@ -10,7 +10,6 @@
 /*                                                                            */
 /* ************************************************************************** */
 
-
 #include "codexion.h"
 
 t_dongle	*dongles_initializer(t_shared *data)
@@ -58,16 +57,7 @@ t_coder	*coders_init(t_shared *data, t_dongle *dongles)
 	while (i < data->n_coders)
 	{
 		coders[i].id = i + 1;
-		if (((i + 1) % data->n_coders) < i)
-		{
-			coders[i].left_d = &dongles[(i + 1) % data->n_coders];
-			coders[i].right_d = &dongles[i];
-		}
-		else
-		{
-			coders[i].left_d = &dongles[i];
-			coders[i].right_d = &dongles[(i + 1) % data->n_coders];
-		}
+		set_dongle_pair(coders, dongles, i, data->n_coders);
 		coders[i].shared = data;
 		coders[i].compile_count = 0;
 		coders[i].check_time = &check_time[i];
@@ -80,7 +70,7 @@ t_coder	*coders_init(t_shared *data, t_dongle *dongles)
 	return (coders);
 }
 
-int	threads_init(pthread_t *t, t_coder *coders, void * (*f)(void *))
+int	threads_init(pthread_t *t, t_coder *coders, void *(*f)(void *))
 {
 	t_dongle	*dongles;
 	int			i;
