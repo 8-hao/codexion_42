@@ -29,7 +29,7 @@ typedef struct shared
 	int				t_refactor;
 	int				n_compiles;
 	int				d_cooldown;
-	char			c;
+	int				c;
 	pthread_mutex_t	p_safe;
 }	t_shared;
 
@@ -89,6 +89,7 @@ int			compiling(t_coder *c);
 int			debug_and_refactor(t_coder *c);
 int			abort_acquire(t_coder *c, t_dongle *d, char ch);
 int			threads_init(pthread_t *threads, t_coder *c, void *(*f)(void *));
+int			set_queue_val(t_coder *c, t_dongle *d);
 
 void		threads_join(pthread_t *threads, int n, pthread_t	id_monitor);
 void		check_finished(t_monitor *m, int i, int	*finished, int *counter);

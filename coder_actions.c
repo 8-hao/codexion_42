@@ -88,7 +88,7 @@ int	acquire_dongle(t_coder *c, t_dongle *d, char ch)
 	{
 		if (is_inqueue(d->headq, c))
 		{
-			add_back(&d->headq, newnode(c, ft_time()));
+			add_back(&d->headq, newnode(c, set_queue_val(c, d)));
 			if (d->arb == 2)
 				sort_min(&d->headq);
 		}

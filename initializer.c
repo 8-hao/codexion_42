@@ -29,6 +29,7 @@ t_dongle	*dongles_initializer(t_shared *data)
 		dongles[i].cooldown = data->d_cooldown;
 		dongles[i].is_available = 1;
 		dongles[i].headq = NULL;
+		dongles[i].arb = data->c;
 		i++;
 	}
 	return (dongles);
