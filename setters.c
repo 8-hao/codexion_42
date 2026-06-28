@@ -28,9 +28,18 @@ void	set_finish(t_coder *c)
 
 int	abort_acquire(t_coder *c, t_dongle *d, char ch)
 {
-	pthread_mutex_unlock(&d->mutex_v);
-	if (ch == 'r')
-		pthread_mutex_unlock(&c->left_d->mutex_v);
+	if (c->id %2 == 0)
+	{
+		pthread_mutex_unlock(&d->mutex_v);
+		if (ch == 'r')
+			pthread_mutex_unlock(&c->left_d->mutex_v);
+	}else
+	{
+		pthread_mutex_unlock(&d->mutex_v);
+		if (ch == 'l')
+			pthread_mutex_unlock(&c->right_d->mutex_v);
+	}
+
 	return (0);
 }
 

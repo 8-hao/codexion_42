@@ -38,7 +38,7 @@ int	ft_smartsleep(int time_to_sleep, t_coder *c)
 	long long	current_time;
 
 	current_time = 0;
-	while (current_time < time_to_sleep * 1000)
+	while (current_time < (long)time_to_sleep * 1000)
 	{
 		pthread_mutex_lock(c->check_time);
 		if (c->stop)

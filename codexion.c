@@ -29,7 +29,9 @@ int	check_burnout(t_monitor *m, int i)
 	if (current_time - last_compile_start >= time_to_burnout && n == 0)
 	{
 		r = current_time - m->coders[i].init_time;
+		pthread_mutex_lock(&m->coders[i].shared->p_safe);
 		printf("%lld %d is burned out\n", r, m->coders[i].id);
+		pthread_mutex_unlock(&m->coders[i].shared->p_safe);
 		return (1);
 	}
 	return (0);
@@ -87,10 +89,18 @@ static void	*coder_func(void *coders)
 	{
 		if (is_stopped(c))
 			return (NULL);
-		if (acquire_dongle(c, c->left_d, 'l') == 0)
-			return (NULL);
-		if (acquire_dongle(c, c->right_d, 'r') == 0)
-			return (NULL);
+		if (c->id %2 == 0){
+			if (acquire_dongle(c, c->left_d, 'l') == 0)
+				return (NULL);
+			if (acquire_dongle(c, c->right_d, 'r') == 0)
+				return (NULL);
+		}
+		else{
+			if (acquire_dongle(c, c->right_d, 'r') == 0)
+				return (NULL);
+			if (acquire_dongle(c, c->left_d, 'l') == 0)
+				return (NULL);
+		}
 		if (compiling(c) == 0)
 			return (NULL);
 		release_dongle(c, c->left_d);
