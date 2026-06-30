@@ -91,7 +91,7 @@ static void	*coder_func(void *coders)
 	{
 		if (is_stopped(c))
 			return (NULL);
-		if (c->id %2 == 0){
+		if (c->id %2 != 0){
 			if (acquire_dongle(c, c->left_d, 'l') == 0)
 				return (NULL);
 			if (acquire_dongle(c, c->right_d, 'r') == 0)
