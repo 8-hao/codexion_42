@@ -35,19 +35,13 @@ void	ft_time_to_sleep(struct timespec *t, int delay_ms)
 
 int	ft_smartsleep(int time_to_sleep, t_coder *c)
 {
-	long long	current_time;
+	long long	start;
 
-	current_time = 0;
-	while (current_time < (long)time_to_sleep * 1000)
+	start = ft_time();
+	while (ft_time() - start < time_to_sleep)
 	{
-		pthread_mutex_lock(c->check_time);
-		if (c->stop)
-		{
-			pthread_mutex_unlock(c->check_time);
+		if (is_stopped(c))
 			return (0);
-		}
-		pthread_mutex_unlock(c->check_time);
-		current_time += 500;
 		usleep(500);
 	}
 	return (1);

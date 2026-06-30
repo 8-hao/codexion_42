@@ -78,6 +78,7 @@ t_coder		*coders_init(t_shared *data, t_dongle *dongles);
 t_queue		*newnode(t_coder *c, int index);
 t_queue		*deletefirst(t_queue **head);
 
+
 long long	ft_time(void);
 
 int			is_stopped(t_coder *c);
@@ -104,5 +105,6 @@ void		stop_all(t_monitor *m);
 void		set_compile_count(t_coder *c, int i);
 void		set_finish(t_coder *c);
 void		set_dongle_pair(t_coder *coders, t_dongle *dongles, int i, int n);
+void		safe_print(char *s, t_coder *c);
 
 #endif

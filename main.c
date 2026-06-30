@@ -12,6 +12,13 @@
 
 #include "codexion.h"
 
+void safe_print(char *s, t_coder *c)
+{
+	pthread_mutex_lock(&c->shared->p_safe);
+	printf("%lld %d %s\n", ft_time() - c->init_time, c->id, s);
+	pthread_mutex_unlock(&c->shared->p_safe);
+}
+
 int	main(int argc, char **argv)
 {
 	t_shared	*data;

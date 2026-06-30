@@ -85,8 +85,8 @@ static void	*coder_func(void *coders)
 
 	c = (t_coder *) coders;
 	i = 0;
-	if (c->id %2 == 0)
-		usleep(2000);
+	if (c->id %2 != 0)
+		usleep(500);
 	while (i++ < c->shared->n_compiles)
 	{
 		if (is_stopped(c))

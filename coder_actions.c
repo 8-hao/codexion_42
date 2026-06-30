@@ -23,28 +23,14 @@ void	release_dongle(t_coder *c, t_dongle *d)
 
 int	debug_and_refactor(t_coder *c)
 {
-	pthread_mutex_lock(c->check_time);
-	if (c->stop)
-	{
-		pthread_mutex_unlock(c->check_time);
+	if (is_stopped(c))
 		return (0);
-	}
-	pthread_mutex_unlock(c->check_time);
-	pthread_mutex_lock(&c->shared->p_safe);
-	printf("%lld %d is debugging\n", ft_time() - c->init_time, c->id);
-	pthread_mutex_unlock(&c->shared->p_safe);
+	safe_print("is debugging", c);
 	if (ft_smartsleep(c->shared->t_debug, c) == 0)
 		return (0);
-	pthread_mutex_lock(c->check_time);
-	if (c->stop)
-	{
-		pthread_mutex_unlock(c->check_time);
+	if (is_stopped(c))
 		return (0);
-	}
-	pthread_mutex_unlock(c->check_time);
-	pthread_mutex_lock(&c->shared->p_safe);
-	printf("%lld %d is refactoring\n", ft_time() - c->init_time, c->id);
-	pthread_mutex_unlock(&c->shared->p_safe);
+	safe_print("is refactoring", c);
 	if (ft_smartsleep(c->shared->t_refactor, c) == 0)
 		return (0);
 	return (1);
@@ -52,29 +38,23 @@ int	debug_and_refactor(t_coder *c)
 
 int	compiling(t_coder *c)
 {
-	int	r;
-
-	pthread_mutex_lock(c->check_time);
-	if (c->stop)
+	if (is_stopped(c))
 	{
 		pthread_mutex_unlock(&c->left_d->mutex_v);
 		pthread_mutex_unlock(&c->right_d->mutex_v);
-		pthread_mutex_unlock(c->check_time);
 		return (0);
 	}
-	pthread_mutex_lock(&c->shared->p_safe);
-	printf("%lld %d is compiling\n", ft_time() - c->init_time, c->id);
-	pthread_mutex_unlock(&c->shared->p_safe);
+	safe_print("is compiling", c);
+	pthread_mutex_lock(c->check_time);
 	c->last_compile_start = ft_time();
 	pthread_mutex_unlock(c->check_time);
-	r = ft_smartsleep(c->shared->t_compile, c);
-	if (r == 0)
+	if (ft_smartsleep(c->shared->t_compile, c) == 0)
 	{
 		pthread_mutex_unlock(&c->left_d->mutex_v);
 		pthread_mutex_unlock(&c->right_d->mutex_v);
-		return (r);
+		return (0);
 	}
-	return (r);
+	return (1);
 }
 
 int	acquire_dongle(t_coder *c, t_dongle *d, char ch)
@@ -99,8 +79,7 @@ int	acquire_dongle(t_coder *c, t_dongle *d, char ch)
 		return (abort_acquire(c, d, ch));
 	if (queuelen(d->headq) != 0 && c->id == d->headq->c->id)
 		free(deletefirst(&d->headq));
-	pthread_mutex_lock(&c->shared->p_safe);
-	printf("%lld %d has taken a dongle\n", ft_time() - c->init_time, c->id);
-	pthread_mutex_unlock(&c->shared->p_safe);
+	safe_print("has taken a dongle", c);
 	return (1);
 }
+

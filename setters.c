@@ -66,5 +66,5 @@ int	set_queue_val(t_coder *c, t_dongle *d)
 	pthread_mutex_unlock(c->check_time);
 	if (d->arb == 2)
 		return (v + c->shared->t_burnout);
-	return (ft_time());
+	return (c->id);
 }

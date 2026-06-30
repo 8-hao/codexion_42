@@ -36,9 +36,7 @@ void	add_back(t_queue **head, t_queue *node)
 		return ;
 	}
 	while (second->next)
-	{
 		second = second->next;
-	}
 	second->next = node;
 }
 
