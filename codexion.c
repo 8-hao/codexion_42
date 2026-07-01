@@ -18,7 +18,6 @@ int	check_burnout(t_monitor *m, int i)
 	long long	last_compile_start;
 	long long	time_to_burnout;
 	int			n;
-	long long	r;
 
 	pthread_mutex_lock(m->coders[i].check_time);
 	current_time = ft_time();
@@ -27,13 +26,7 @@ int	check_burnout(t_monitor *m, int i)
 	n = m->coders[i].finish;
 	pthread_mutex_unlock(m->coders[i].check_time);
 	if (current_time - last_compile_start >= time_to_burnout && n == 0)
-	{
-		r = current_time - m->coders[i].init_time;
-		pthread_mutex_lock(&m->coders[i].shared->p_safe);
-		printf("%lld %d is burned out\n", r, m->coders[i].id);
-		pthread_mutex_unlock(&m->coders[i].shared->p_safe);
 		return (1);
-	}
 	return (0);
 }
 
@@ -44,9 +37,8 @@ void	wake_all_dongles(t_monitor *m)
 	i = 0;
 	while (i < m->num_of_coders)
 	{
-		pthread_mutex_lock(&m->dongles[i].mutex_v);
+		
 		pthread_cond_broadcast(&m->dongles[i].cond_v);
-		pthread_mutex_unlock(&m->dongles[i].mutex_v);
 		i++;
 	}
 }
@@ -67,7 +59,7 @@ static void	*monitor_func(void *monitor)
 		while (i < m->num_of_coders)
 		{
 			if (check_burnout(m, i))
-				return (stop_all(m), wake_all_dongles(m), NULL);
+				return (stop_all(m), wake_all_dongles(m), safe_print("is burned out",&m->coders[i]), NULL);
 			check_finished(m, i, &finished, &counter);
 			i++;
 		}
@@ -91,22 +83,24 @@ static void	*coder_func(void *coders)
 	{
 		if (is_stopped(c))
 			return (NULL);
-		if (c->id %2 != 0){
-			if (acquire_dongle(c, c->left_d, 'l') == 0)
-				return (NULL);
+		if (c->id == c->shared->n_coders)
+		{
 			if (acquire_dongle(c, c->right_d, 'r') == 0)
+				return (NULL);
+			if (acquire_dongle(c, c->left_d, 'l') == 0)
 				return (NULL);
 		}
-		else{
-			if (acquire_dongle(c, c->right_d, 'r') == 0)
-				return (NULL);
+		else
+		{
 			if (acquire_dongle(c, c->left_d, 'l') == 0)
+				return (NULL);
+			if (acquire_dongle(c, c->right_d, 'r') == 0)
 				return (NULL);
 		}
 		if (compiling(c) == 0)
 			return (NULL);
-		release_dongle(c, c->left_d);
-		release_dongle(c, c->right_d);
+		release_dongle(c->left_d);
+		release_dongle(c->right_d);
 		if (is_stopped(c))
 			return (NULL);
 		if (debug_and_refactor(c) == 0)

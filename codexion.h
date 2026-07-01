@@ -96,7 +96,7 @@ void		threads_join(pthread_t *threads, int n, pthread_t	id_monitor);
 void		check_finished(t_monitor *m, int i, int	*finished, int *counter);
 void		free_all(t_dongle *dongles, t_coder *coders, pthread_t	*threads);
 void		ft_codexion(t_shared *data);
-void		release_dongle(t_coder *c, t_dongle *d);
+void		release_dongle(t_dongle *d);
 void		ft_time_to_sleep(struct timespec *t, int delay_ms);
 void		add_back(t_queue **head, t_queue *node);
 void		sort_min(t_queue **head);

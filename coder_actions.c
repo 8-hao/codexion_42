@@ -12,12 +12,11 @@
 
 #include "codexion.h"
 
-void	release_dongle(t_coder *c, t_dongle *d)
+void	release_dongle(t_dongle *d)
 {
-	pthread_mutex_lock(c->check_time);
 	d->is_available = 1;
 	d->release_time = ft_time();
-	pthread_mutex_unlock(c->check_time);
+	pthread_cond_broadcast(&d->cond_v);
 	pthread_mutex_unlock(&d->mutex_v);
 }
 
@@ -64,7 +63,13 @@ int	acquire_dongle(t_coder *c, t_dongle *d, char ch)
 	pthread_mutex_lock(&d->mutex_v);
 	if (is_stopped(c))
 		return (abort_acquire(c, d, ch));
-	while (!c->stop && ft_time() - d->release_time < d->cooldown)
+	if (is_inqueue(d->headq, c))
+	{
+		add_back(&d->headq, newnode(c, set_queue_val(c, d)));
+		if (d->arb == 2)
+			sort_min(&d->headq);
+	}
+	    while (!c->stop && (ft_time() - d->release_time < d->cooldown || (d->headq != NULL && c->id != d->headq->c->id)))
 	{
 		if (is_inqueue(d->headq, c))
 		{

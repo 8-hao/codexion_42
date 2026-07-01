@@ -111,7 +111,7 @@ t_shared	*parser(int argc, char **argv)
 			return (free(data), NULL);
 		if (i != 7 && atoi(argv[i]) == 0)
 		{
-			printf("0 is not a valid integer value (max: 2147483647)\n");
+			printf("0 is not a valid integer value\n");
 			return (free(data), NULL);
 		}
 		data[i - 1] = atoi(argv[i]);
