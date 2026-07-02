@@ -28,28 +28,27 @@ void	set_finish(t_coder *c)
 
 int	abort_acquire(t_coder *c, t_dongle *d, char ch)
 {
-	if (c->id %2 == 0)
-	{
-		pthread_mutex_unlock(&d->mutex_v);
-		if (ch == 'r')
-			pthread_mutex_unlock(&c->left_d->mutex_v);
-	}else
-	{
-		pthread_mutex_unlock(&d->mutex_v);
-		if (ch == 'l')
-			pthread_mutex_unlock(&c->right_d->mutex_v);
-	}
-
-	return (0);
+    pthread_mutex_unlock(&d->mutex_v);
+    if (c->id == c->shared->n_coders)
+    {
+        if (ch == 'l')
+            pthread_mutex_unlock(&c->right_d->mutex_v);
+    }
+    else
+    {
+        if (ch == 'r')
+            pthread_mutex_unlock(&c->left_d->mutex_v);
+    }
+    return (0);
 }
 
 void	set_dongle_pair(t_coder *coders, t_dongle *dongles, int i, int n)
 {
-	if (((i + 1) % n) < i)
-	{
-		coders[i].left_d = &dongles[(i + 1) % n];
-		coders[i].right_d = &dongles[i];
-	}
+    if (i == n - 1)
+    {
+        coders[i].left_d = &dongles[i];
+        coders[i].right_d = &dongles[0];
+    }
 	else
 	{
 		coders[i].left_d = &dongles[i];

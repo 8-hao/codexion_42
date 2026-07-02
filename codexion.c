@@ -37,8 +37,9 @@ void	wake_all_dongles(t_monitor *m)
 	i = 0;
 	while (i < m->num_of_coders)
 	{
-		
+		pthread_mutex_lock(&m->dongles[i].mutex_v);
 		pthread_cond_broadcast(&m->dongles[i].cond_v);
+		pthread_mutex_unlock(&m->dongles[i].mutex_v);
 		i++;
 	}
 }
@@ -59,7 +60,7 @@ static void	*monitor_func(void *monitor)
 		while (i < m->num_of_coders)
 		{
 			if (check_burnout(m, i))
-				return (stop_all(m), wake_all_dongles(m), safe_print("is burned out",&m->coders[i]), NULL);
+				return (safe_print("is burned out",&m->coders[i]),stop_all(m), wake_all_dongles(m), NULL);
 			check_finished(m, i, &finished, &counter);
 			i++;
 		}
@@ -83,20 +84,29 @@ static void	*coder_func(void *coders)
 	{
 		if (is_stopped(c))
 			return (NULL);
-		if (c->id == c->shared->n_coders)
-		{
-			if (acquire_dongle(c, c->right_d, 'r') == 0)
-				return (NULL);
-			if (acquire_dongle(c, c->left_d, 'l') == 0)
-				return (NULL);
-		}
-		else
-		{
-			if (acquire_dongle(c, c->left_d, 'l') == 0)
-				return (NULL);
-			if (acquire_dongle(c, c->right_d, 'r') == 0)
-				return (NULL);
-		}
+		if (c->shared->n_coders == 1)
+        {
+			if (acquire_dongle(c, c->left_d, 'l' ) == 0)
+				return NULL;
+            while (!is_stopped(c))
+				usleep(200);
+			pthread_mutex_unlock(&c->left_d->mutex_v);
+			return (NULL);
+        }
+		if (c->left_d < c->right_d)
+			{
+				if (acquire_dongle(c, c->left_d, 'l') == 0)
+					return (NULL);
+				if (acquire_dongle(c, c->right_d, 'r') == 0)
+					return (NULL);
+			}
+			else
+			{
+				if (acquire_dongle(c, c->right_d, 'r') == 0)
+					return (NULL);
+				if (acquire_dongle(c, c->left_d, 'l') == 0)
+					return (NULL);
+			}
 		if (compiling(c) == 0)
 			return (NULL);
 		release_dongle(c->left_d);

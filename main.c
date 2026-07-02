@@ -14,8 +14,11 @@
 
 void safe_print(char *s, t_coder *c)
 {
+	long long	t;
+
+	t = ft_time() - c->init_time;
 	pthread_mutex_lock(&c->shared->p_safe);
-	printf("%lld %d %s\n", ft_time() - c->init_time, c->id, s);
+	printf("%lld %d %s\n", t, c->id, s);
 	pthread_mutex_unlock(&c->shared->p_safe);
 }
 

@@ -40,7 +40,8 @@ int	compiling(t_coder *c)
 	if (is_stopped(c))
 	{
 		pthread_mutex_unlock(&c->left_d->mutex_v);
-		pthread_mutex_unlock(&c->right_d->mutex_v);
+		if (c->shared->n_coders != 1)
+			pthread_mutex_unlock(&c->right_d->mutex_v);
 		return (0);
 	}
 	safe_print("is compiling", c);
@@ -50,7 +51,8 @@ int	compiling(t_coder *c)
 	if (ft_smartsleep(c->shared->t_compile, c) == 0)
 	{
 		pthread_mutex_unlock(&c->left_d->mutex_v);
-		pthread_mutex_unlock(&c->right_d->mutex_v);
+		if (c->shared->n_coders != 1)
+			pthread_mutex_unlock(&c->right_d->mutex_v);
 		return (0);
 	}
 	return (1);
@@ -69,7 +71,7 @@ int	acquire_dongle(t_coder *c, t_dongle *d, char ch)
 		if (d->arb == 2)
 			sort_min(&d->headq);
 	}
-	    while (!c->stop && (ft_time() - d->release_time < d->cooldown || (d->headq != NULL && c->id != d->headq->c->id)))
+	    while (!is_stopped(c) && (ft_time() - d->release_time < d->cooldown || (d->headq != NULL && c->id != d->headq->c->id)))
 	{
 		if (is_inqueue(d->headq, c))
 		{
