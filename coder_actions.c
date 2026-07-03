@@ -1,12 +1,12 @@
 /* ************************************************************************** */
 /*                                                                            */
-/*                                                        :::      ::::::::   */
-/*   coder_actions.c                                    :+:      :+:    :+:   */
-/*                                                    +:+ +:+         +:+     */
-/*   By: obakri <obakri@student.42.fr>              +#+  +:+       +#+        */
-/*                                                +#+#+#+#+#+   +#+           */
-/*   Created: 2026/06/28 01:37:23 by obakri            #+#    #+#             */
-/*   Updated: 2026/06/28 01:37:46 by obakri           ###   ########.fr       */
+/*                                                       :::      ::::::::    */
+/*   coder_actions.c                                   :+:      :+:    :+:    */
+/*                                                   +:+ +:+         +:+      */
+/*   By: username <username@student.42tokyo.jp>    #+#  +:+       +#+         */
+/*                                               +#+#+#+#+#+   +#+            */
+/*   Created: 2026/06/28 01:37:23 by username         #+#    #+#              */
+/*   Updated: 2026/07/03 09:40:36 by username        ###   ########.fr        */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -40,8 +40,7 @@ int	compiling(t_coder *c)
 	if (is_stopped(c))
 	{
 		pthread_mutex_unlock(&c->left_d->mutex_v);
-		if (c->shared->n_coders != 1)
-			pthread_mutex_unlock(&c->right_d->mutex_v);
+		pthread_mutex_unlock(&c->right_d->mutex_v);
 		return (0);
 	}
 	safe_print("is compiling", c);
@@ -51,8 +50,7 @@ int	compiling(t_coder *c)
 	if (ft_smartsleep(c->shared->t_compile, c) == 0)
 	{
 		pthread_mutex_unlock(&c->left_d->mutex_v);
-		if (c->shared->n_coders != 1)
-			pthread_mutex_unlock(&c->right_d->mutex_v);
+		pthread_mutex_unlock(&c->right_d->mutex_v);
 		return (0);
 	}
 	return (1);
@@ -62,7 +60,6 @@ int	acquire_dongle(t_coder *c, t_dongle *d, char ch)
 {
 	struct timespec	tmp;
 
-	pthread_mutex_lock(&d->mutex_v);
 	if (is_stopped(c))
 		return (abort_acquire(c, d, ch));
 	if (is_inqueue(d->headq, c))
@@ -71,7 +68,8 @@ int	acquire_dongle(t_coder *c, t_dongle *d, char ch)
 		if (d->arb == 2)
 			sort_min(&d->headq);
 	}
-	    while (!is_stopped(c) && (ft_time() - d->release_time < d->cooldown || (d->headq != NULL && c->id != d->headq->c->id)))
+	pthread_mutex_lock(&d->mutex_v);
+	while (!is_stopped(c) && (ft_time() - d->release_time < d->cooldown || (d->headq != NULL && c->id != d->headq->c->id)))
 	{
 		if (is_inqueue(d->headq, c))
 		{
@@ -79,7 +77,7 @@ int	acquire_dongle(t_coder *c, t_dongle *d, char ch)
 			if (d->arb == 2)
 				sort_min(&d->headq);
 		}
-		ft_time_to_sleep(&tmp, d->cooldown - (ft_time() - d->release_time));
+		ft_time_to_sleep(&tmp, 10);
 		pthread_cond_timedwait(&d->cond_v, &d->mutex_v, &tmp);
 	}
 	if (is_stopped(c))
@@ -89,4 +87,4 @@ int	acquire_dongle(t_coder *c, t_dongle *d, char ch)
 	safe_print("has taken a dongle", c);
 	return (1);
 }
-
+//d->cooldown - (ft_time() - d->release_time)

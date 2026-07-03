@@ -1,12 +1,12 @@
 /* ************************************************************************** */
 /*                                                                            */
-/*                                                        :::      ::::::::   */
-/*   codexion.c                                         :+:      :+:    :+:   */
-/*                                                    +:+ +:+         +:+     */
-/*   By: obakri <obakri@student.42.fr>              +#+  +:+       +#+        */
-/*                                                +#+#+#+#+#+   +#+           */
-/*   Created: 2026/06/28 00:22:04 by obakri            #+#    #+#             */
-/*   Updated: 2026/06/28 00:22:09 by obakri           ###   ########.fr       */
+/*                                                       :::      ::::::::    */
+/*   codexion.c                                        :+:      :+:    :+:    */
+/*                                                   +:+ +:+         +:+      */
+/*   By: username <username@student.42tokyo.jp>    #+#  +:+       +#+         */
+/*                                               +#+#+#+#+#+   +#+            */
+/*   Created: 2026/06/28 00:22:04 by username         #+#    #+#              */
+/*   Updated: 2026/07/03 09:40:31 by username        ###   ########.fr        */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -60,7 +60,7 @@ static void	*monitor_func(void *monitor)
 		while (i < m->num_of_coders)
 		{
 			if (check_burnout(m, i))
-				return (safe_print("is burned out",&m->coders[i]),stop_all(m), wake_all_dongles(m), NULL);
+				return (safe_print("is burned out", &m->coders[i]), stop_all(m), wake_all_dongles(m), NULL);
 			check_finished(m, i, &finished, &counter);
 			i++;
 		}
@@ -78,35 +78,35 @@ static void	*coder_func(void *coders)
 
 	c = (t_coder *) coders;
 	i = 0;
-	if (c->id %2 != 0)
+	if (c->id % 2 != 0)
 		usleep(500);
 	while (i++ < c->shared->n_compiles)
 	{
 		if (is_stopped(c))
 			return (NULL);
 		if (c->shared->n_coders == 1)
-        {
-			if (acquire_dongle(c, c->left_d, 'l' ) == 0)
-				return NULL;
-            while (!is_stopped(c))
+		{
+			if (acquire_dongle(c, c->left_d, 'l') == 0)
+				return (NULL);
+			while (!is_stopped(c))
 				usleep(200);
 			pthread_mutex_unlock(&c->left_d->mutex_v);
 			return (NULL);
-        }
+		}
 		if (c->left_d < c->right_d)
-			{
-				if (acquire_dongle(c, c->left_d, 'l') == 0)
-					return (NULL);
-				if (acquire_dongle(c, c->right_d, 'r') == 0)
-					return (NULL);
-			}
-			else
-			{
-				if (acquire_dongle(c, c->right_d, 'r') == 0)
-					return (NULL);
-				if (acquire_dongle(c, c->left_d, 'l') == 0)
-					return (NULL);
-			}
+		{
+			if (acquire_dongle(c, c->left_d, 'l') == 0)
+				return (NULL);
+			if (acquire_dongle(c, c->right_d, 'r') == 0)
+				return (NULL);
+		}
+		else
+		{
+			if (acquire_dongle(c, c->right_d, 'r') == 0)
+				return (NULL);
+			if (acquire_dongle(c, c->left_d, 'l') == 0)
+				return (NULL);
+		}
 		if (compiling(c) == 0)
 			return (NULL);
 		release_dongle(c->left_d);
@@ -134,12 +134,12 @@ void	ft_codexion(t_shared *data)
 		return ;
 	coders = coders_init(data, dongles);
 	if (coders == NULL)
-		return ((void)free_all(dongles, coders, NULL));
+		return ((void) free_all(dongles, coders, NULL));
 	threads = malloc(sizeof(pthread_t) * data->n_coders);
 	if (threads == NULL)
-		return ((void)free_all(dongles, coders, NULL));
+		return ((void) free_all(dongles, coders, NULL));
 	if (threads_init(threads, coders, coder_func) == 0)
-		return ((void)free_all(dongles, coders, NULL));
+		return ((void) free_all(dongles, coders, NULL));
 	monitor_init(&monitor, dongles, coders);
 	pthread_create(&id_monitor, NULL, monitor_func, &monitor);
 	threads_join(threads, data->n_coders, id_monitor);

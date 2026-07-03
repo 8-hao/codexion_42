@@ -1,12 +1,12 @@
 /* ************************************************************************** */
 /*                                                                            */
-/*                                                        :::      ::::::::   */
-/*   codexion.c                                         :+:      :+:    :+:   */
-/*                                                    +:+ +:+         +:+     */
-/*   By: obakri <obakri@student.42.fr>              +#+  +:+       +#+        */
-/*                                                +#+#+#+#+#+   +#+           */
-/*   Created: 2026/06/27 22:22:11 by obakri            #+#    #+#             */
-/*   Updated: 2026/06/27 22:22:14 by obakri           ###   ########.fr       */
+/*                                                       :::      ::::::::    */
+/*   setters.c                                         :+:      :+:    :+:    */
+/*                                                   +:+ +:+         +:+      */
+/*   By: username <username@student.42tokyo.jp>    #+#  +:+       +#+         */
+/*                                               +#+#+#+#+#+   +#+            */
+/*   Created: 2026/06/27 22:22:11 by username         #+#    #+#              */
+/*   Updated: 2026/07/03 09:40:23 by username        ###   ########.fr        */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -28,35 +28,36 @@ void	set_finish(t_coder *c)
 
 int	abort_acquire(t_coder *c, t_dongle *d, char ch)
 {
-    pthread_mutex_unlock(&d->mutex_v);
-    if (c->id == c->shared->n_coders)
-    {
-        if (ch == 'l')
-            pthread_mutex_unlock(&c->right_d->mutex_v);
-    }
-    else
-    {
-        if (ch == 'r')
-            pthread_mutex_unlock(&c->left_d->mutex_v);
-    }
-    return (0);
+	(void)ch;
+	pthread_mutex_unlock(&d->mutex_v);
+	if (c->left_d < c->right_d)
+	{
+		if (d == c->right_d)
+			pthread_mutex_unlock(&c->left_d->mutex_v);
+	}
+	else
+	{
+		if (d == c->left_d)
+			pthread_mutex_unlock(&c->right_d->mutex_v);
+	}
+	return (0);
 }
 
 void	set_dongle_pair(t_coder *coders, t_dongle *dongles, int i, int n)
 {
-    if (i == n - 1)
-    {
-        coders[i].left_d = &dongles[i];
-        coders[i].right_d = &dongles[0];
-    }
+	if (i == n - 1)
+	{
+		coders[i].left_d = &dongles[i];
+		coders[i].right_d = &dongles[0];
+	}
 	else
 	{
 		coders[i].left_d = &dongles[i];
-		coders[i].right_d = &dongles[(i + 1) % n];
+		coders[i].right_d = &dongles[i + 1];
 	}
 }
 
-int	set_queue_val(t_coder *c, t_dongle *d)
+long long	set_queue_val(t_coder *c, t_dongle *d)
 {
 	long long	v;
 
@@ -64,6 +65,6 @@ int	set_queue_val(t_coder *c, t_dongle *d)
 	v = c->last_compile_start;
 	pthread_mutex_unlock(c->check_time);
 	if (d->arb == 2)
-		return (v + c->shared->t_burnout);
-	return (c->id);
+		return ((long long) v + c->shared->t_burnout);
+	return (ft_time());
 }

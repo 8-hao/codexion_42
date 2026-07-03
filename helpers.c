@@ -37,6 +37,7 @@ void	stop_all(t_monitor *m)
 		pthread_mutex_unlock(m->coders[i].check_time);
 		i++;
 	}
+	wake_all_dongles(m);
 }
 
 void	check_finished(t_monitor *m, int i, int *finished, int *counter)

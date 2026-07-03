@@ -12,7 +12,7 @@
 
 #include "codexion.h"
 
-void safe_print(char *s, t_coder *c)
+void	safe_print(char *s, t_coder *c)
 {
 	long long	t;
 
