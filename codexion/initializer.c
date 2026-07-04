@@ -52,6 +52,7 @@ t_coder	*coders_init(t_shared *data, t_dongle *dongles)
 		coders[i].check_time = &check_time[i];
 		if (pthread_mutex_init(&check_time[i], NULL) != 0)
 			return (free(check_time), free(coders), NULL);
+		pthread_mutex_init(&coders[i].safe_check, NULL);
 		coders[i].finish = 0;
 		coders[i].stop = 0;
 		i++;
@@ -73,6 +74,7 @@ int	threads_init(pthread_t *t, t_coder *coders, void *(*f)(void *))
  		coders[i].init_time = init_time;
  		coders[i].last_compile_start = ft_time();
  		dongles[i].release_time = ft_time() - dongles[i].cooldown;
+		dongles[i].cooldown_time = ft_time();
  		i++;
  	}
  	i = 0;

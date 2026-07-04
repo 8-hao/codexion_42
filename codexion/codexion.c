@@ -4,9 +4,20 @@
 void *coder_func(void *args)
 {
     t_coder *c;
+	int 	i;
 
     c = (t_coder *) args;
-    printf("%d\n",c->id);
+	i = 0;
+	if(i%2 != 0)
+		usleep(1000);
+    while(i++ < c->shared->n_compiles)
+	{
+		acquire_dongles(c);
+		compiling(c);
+
+		release_dongle(c->left_d);
+		release_dongle(c->right_d);
+	}
     return NULL;
 }
 
