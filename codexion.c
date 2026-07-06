@@ -5,43 +5,40 @@
 /*                                                   +:+ +:+         +:+      */
 /*   By: username <username@student.42tokyo.jp>    #+#  +:+       +#+         */
 /*                                               +#+#+#+#+#+   +#+            */
-/*   Created: 2026/06/28 00:22:04 by username         #+#    #+#              */
-/*   Updated: 2026/07/03 09:40:31 by username        ###   ########.fr        */
+/*   Created: 2026/07/05 21:37:21 by username         #+#    #+#              */
+/*   Updated: 2026/07/05 21:37:21 by username        ###   ########.fr        */
 /*                                                                            */
 /* ************************************************************************** */
 
 #include "codexion.h"
 
-int	check_burnout(t_monitor *m, int i)
+void	*coder_func(void *args)
 {
-	long long	current_time;
-	long long	last_compile_start;
-	long long	time_to_burnout;
-	int			n;
+	t_coder	*c;
+	int		i;
 
-	pthread_mutex_lock(m->coders[i].check_time);
-	current_time = ft_time();
-	last_compile_start = m->coders[i].last_compile_start;
-	time_to_burnout = m->coders[i].shared->t_burnout;
-	n = m->coders[i].finish;
-	pthread_mutex_unlock(m->coders[i].check_time);
-	if (current_time - last_compile_start >= time_to_burnout && n == 0)
-		return (1);
-	return (0);
-}
-
-void	wake_all_dongles(t_monitor *m)
-{
-	int	i;
-
+	c = (t_coder *) args;
 	i = 0;
-	while (i < m->num_of_coders)
+	if (c->id % 2 == 0)
+		usleep(1000);
+	while (i < c->shared->n_compiles)
 	{
-		pthread_mutex_lock(&m->dongles[i].mutex_v);
-		pthread_cond_broadcast(&m->dongles[i].cond_v);
-		pthread_mutex_unlock(&m->dongles[i].mutex_v);
+		if (acquire_dongles(c) == 0)
+			return (NULL);
+		if (compiling(c) == 0)
+			return (NULL);
+		if (release_dongles(c) == 0)
+			return (NULL);
+		if (debug_and_refactor(c) == 0)
+			return (NULL);
 		i++;
+		if (set_compile_count(c, i) == 0)
+			return (NULL);
 	}
+	pthread_mutex_lock(&c->safe_check);
+	c->finish = 1;
+	pthread_mutex_unlock(&c->safe_check);
+	return (NULL);
 }
 
 static void	*monitor_func(void *monitor)
@@ -60,7 +57,8 @@ static void	*monitor_func(void *monitor)
 		while (i < m->num_of_coders)
 		{
 			if (check_burnout(m, i))
-				return (safe_print("is burned out", &m->coders[i]), stop_all(m), wake_all_dongles(m), NULL);
+				return (stop_wake_all(m),
+					safe_print("is burned out", &m->coders[i]), NULL);
 			check_finished(m, i, &finished, &counter);
 			i++;
 		}
@@ -71,63 +69,12 @@ static void	*monitor_func(void *monitor)
 	return (NULL);
 }
 
-static void	*coder_func(void *coders)
-{
-	t_coder	*c;
-	int		i;
-
-	c = (t_coder *) coders;
-	i = 0;
-	if (c->id % 2 != 0)
-		usleep(500);
-	while (i++ < c->shared->n_compiles)
-	{
-		if (is_stopped(c))
-			return (NULL);
-		if (c->shared->n_coders == 1)
-		{
-			if (acquire_dongle(c, c->left_d, 'l') == 0)
-				return (NULL);
-			while (!is_stopped(c))
-				usleep(200);
-			pthread_mutex_unlock(&c->left_d->mutex_v);
-			return (NULL);
-		}
-		if (c->left_d < c->right_d)
-		{
-			if (acquire_dongle(c, c->left_d, 'l') == 0)
-				return (NULL);
-			if (acquire_dongle(c, c->right_d, 'r') == 0)
-				return (NULL);
-		}
-		else
-		{
-			if (acquire_dongle(c, c->right_d, 'r') == 0)
-				return (NULL);
-			if (acquire_dongle(c, c->left_d, 'l') == 0)
-				return (NULL);
-		}
-		if (compiling(c) == 0)
-			return (NULL);
-		release_dongle(c->left_d);
-		release_dongle(c->right_d);
-		if (is_stopped(c))
-			return (NULL);
-		if (debug_and_refactor(c) == 0)
-			return (NULL);
-		set_compile_count(c, i);
-	}
-	set_finish(c);
-	return (NULL);
-}
-
-void	ft_codexion(t_shared *data)
+static void	ft_codexion(t_shared *data)
 {
 	t_coder		*coders;
 	t_dongle	*dongles;
-	t_monitor	monitor;
 	pthread_t	*threads;
-	pthread_t	id_monitor;
+	t_monitor	monitor;
 
 	dongles = dongles_initializer(data);
 	if (dongles == NULL)
@@ -141,7 +88,24 @@ void	ft_codexion(t_shared *data)
 	if (threads_init(threads, coders, coder_func) == 0)
 		return ((void) free_all(dongles, coders, NULL));
 	monitor_init(&monitor, dongles, coders);
-	pthread_create(&id_monitor, NULL, monitor_func, &monitor);
-	threads_join(threads, data->n_coders, id_monitor);
+	pthread_create(&monitor.id_monitor, NULL, monitor_func, &monitor);
+	threads_join(threads, data->n_coders, monitor.id_monitor);
 	free_all(dongles, coders, threads);
+}
+
+int	main(int argc, char **argv)
+{
+	t_shared	*data;
+
+	if (argc != 9)
+	{
+		printf("Error: Expected 8 arguments, but received %d.\n", argc - 1);
+		return (1);
+	}
+	data = parser(argc - 1, argv);
+	if (data == NULL)
+		return (1);
+	ft_codexion(data);
+	free(data);
+	return (0);
 }

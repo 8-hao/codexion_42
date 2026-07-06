@@ -1,6 +1,6 @@
 CC = cc
 CFLAGS = -Wall -Wextra -Werror -pthread -g
-FILES = main.c parser.c codexion.c initializer.c helpers.c pqueue.c coder_actions.c time.c setters.c
+FILES = codexion.c parser.c time.c initializer.c helpers.c setters.c pqueue.c coder_actions.c monitor_actions.c
 OBJ_F = $(FILES:.c=.o)
 
 

@@ -1,12 +1,12 @@
 /* ************************************************************************** */
 /*                                                                            */
-/*                                                        :::      ::::::::   */
-/*   initializer.c                                      :+:      :+:    :+:   */
-/*                                                    +:+ +:+         +:+     */
-/*   By: obakri <obakri@student.42.fr>              +#+  +:+       +#+        */
-/*                                                +#+#+#+#+#+   +#+           */
-/*   Created: 2026/06/27 22:22:31 by obakri            #+#    #+#             */
-/*   Updated: 2026/06/27 22:22:33 by obakri           ###   ########.fr       */
+/*                                                       :::      ::::::::    */
+/*   initializer.c                                     :+:      :+:    :+:    */
+/*                                                   +:+ +:+         +:+      */
+/*   By: username <username@student.42tokyo.jp>    #+#  +:+       +#+         */
+/*                                               +#+#+#+#+#+   +#+            */
+/*   Created: 2026/07/05 21:37:36 by username         #+#    #+#              */
+/*   Updated: 2026/07/05 21:37:36 by username        ###   ########.fr        */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -35,25 +35,14 @@ t_dongle	*dongles_initializer(t_shared *data)
 	return (dongles);
 }
 
-void	monitor_init(t_monitor *monitor, t_dongle *dongles, t_coder *c)
-{
-	(*monitor).coders = c;
-	(*monitor).dongles = dongles;
-	(*monitor).num_of_coders = c[0].shared->n_coders;
-}
-
 t_coder	*coders_init(t_shared *data, t_dongle *dongles)
 {
-	int				i;
-	t_coder			*coders;
-	pthread_mutex_t	*check_time;
+	int		i;
+	t_coder	*coders;
 
 	coders = malloc(sizeof(t_coder) * data->n_coders);
 	if (coders == NULL)
 		return (NULL);
-	check_time = malloc(sizeof(pthread_mutex_t) * data->n_coders);
-	if (check_time == NULL)
-		return (free(dongles), free(coders), NULL);
 	i = 0;
 	while (i < data->n_coders)
 	{
@@ -61,9 +50,8 @@ t_coder	*coders_init(t_shared *data, t_dongle *dongles)
 		set_dongle_pair(coders, dongles, i, data->n_coders);
 		coders[i].shared = data;
 		coders[i].compile_count = 0;
-		coders[i].check_time = &check_time[i];
-		if (pthread_mutex_init(&check_time[i], NULL) != 0)
-			return (free(check_time), free(coders), NULL);
+		if (pthread_mutex_init(&coders[i].safe_check, NULL) != 0)
+			return (free(coders), NULL);
 		coders[i].finish = 0;
 		coders[i].stop = 0;
 		i++;
@@ -83,8 +71,9 @@ int	threads_init(pthread_t *t, t_coder *coders, void *(*f)(void *))
 	while (i < coders[0].shared->n_coders)
 	{
 		coders[i].init_time = init_time;
-		coders[i].last_compile_start = ft_time();
-		dongles[i].release_time = ft_time() - dongles[i].cooldown;
+		coders[i].last_compile_start = init_time;
+		dongles[i].release_time = init_time;
+		dongles[i].cooldown_time = set_time(0);
 		i++;
 	}
 	i = 0;
@@ -95,6 +84,13 @@ int	threads_init(pthread_t *t, t_coder *coders, void *(*f)(void *))
 		i++;
 	}
 	return (1);
+}
+
+void	monitor_init(t_monitor *monitor, t_dongle *dongles, t_coder *c)
+{
+	(*monitor).coders = c;
+	(*monitor).dongles = dongles;
+	(*monitor).num_of_coders = c[0].shared->n_coders;
 }
 
 void	threads_join(pthread_t *threads, int n, pthread_t id_monitor)

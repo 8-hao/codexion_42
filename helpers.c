@@ -1,60 +1,57 @@
 /* ************************************************************************** */
 /*                                                                            */
-/*                                                        :::      ::::::::   */
-/*   cleaner.c                                          :+:      :+:    :+:   */
-/*                                                    +:+ +:+         +:+     */
-/*   By: obakri <obakri@student.42.fr>              +#+  +:+       +#+        */
-/*                                                +#+#+#+#+#+   +#+           */
-/*   Created: 2026/06/27 22:21:24 by obakri            #+#    #+#             */
-/*   Updated: 2026/06/27 22:21:31 by obakri           ###   ########.fr       */
+/*                                                       :::      ::::::::    */
+/*   helpers.c                                         :+:      :+:    :+:    */
+/*                                                   +:+ +:+         +:+      */
+/*   By: username <username@student.42tokyo.jp>    #+#  +:+       +#+         */
+/*                                               +#+#+#+#+#+   +#+            */
+/*   Created: 2026/07/05 21:37:31 by username         #+#    #+#              */
+/*   Updated: 2026/07/05 23:59:55 by username        ###   ########.fr        */
 /*                                                                            */
 /* ************************************************************************** */
 
 #include "codexion.h"
 
+static void	free_queue(t_queue *queue)
+{
+	t_queue	*node;
+
+	while (queue)
+	{
+		node = queue->next;
+		queue->next = NULL;
+		free(queue);
+		queue = node;
+	}
+}
+
 void	free_all(t_dongle *dongles, t_coder *coders, pthread_t *threads)
 {
-	if (coders != NULL)
+	int	i;
+
+	i = 0;
+	while (i < coders[0].shared->n_coders)
 	{
-		free(coders[0].check_time);
-		free(coders);
+		if (queuelen(dongles[i].headq) != 0)
+			free_queue(dongles[i].headq);
+		i++;
 	}
+	if (coders != NULL)
+		free(coders);
 	if (dongles != NULL)
 		free(dongles);
 	if (threads != NULL)
 		free(threads);
 }
 
-void	stop_all(t_monitor *m)
+void	safe_print(char *s, t_coder *c)
 {
-	int	i;
+	long long	t;
 
-	i = 0;
-	while (i < m->num_of_coders)
-	{
-		pthread_mutex_lock(m->coders[i].check_time);
-		m->coders[i].stop = 1;
-		pthread_mutex_unlock(m->coders[i].check_time);
-		i++;
-	}
-	wake_all_dongles(m);
-}
-
-void	check_finished(t_monitor *m, int i, int *finished, int *counter)
-{
-	int	n;
-	int	compile_count;
-
-	pthread_mutex_lock(m->coders[i].check_time);
-	n = m->coders[i].finish;
-	compile_count = m->coders[i].compile_count;
-	pthread_mutex_unlock(m->coders[i].check_time);
-	if (n == 1)
-	{
-		(*finished)++;
-		if (compile_count == m->coders[i].shared->n_compiles)
-			(*counter)++;
-	}
+	t = ft_time() - c->init_time;
+	pthread_mutex_lock(&c->shared->p_safe);
+	printf("%lld %d %s\n", t, c->id, s);
+	pthread_mutex_unlock(&c->shared->p_safe);
 }
 
 t_queue	*deletefirst(t_queue **head)
@@ -73,8 +70,8 @@ int	is_stopped(t_coder *c)
 {
 	int	s;
 
-	pthread_mutex_lock(c->check_time);
+	pthread_mutex_lock(&c->safe_check);
 	s = c->stop;
-	pthread_mutex_unlock(c->check_time);
+	pthread_mutex_unlock(&c->safe_check);
 	return (s);
 }

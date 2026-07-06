@@ -1,18 +1,18 @@
 /* ************************************************************************** */
 /*                                                                            */
-/*                                                        :::      ::::::::   */
-/*   pqueue.c                                           :+:      :+:    :+:   */
-/*                                                    +:+ +:+         +:+     */
-/*   By: obakri <obakri@student.42.fr>              +#+  +:+       +#+        */
-/*                                                +#+#+#+#+#+   +#+           */
-/*   Created: 2026/06/27 22:23:04 by obakri            #+#    #+#             */
-/*   Updated: 2026/06/27 22:23:06 by obakri           ###   ########.fr       */
+/*                                                       :::      ::::::::    */
+/*   pqueue.c                                          :+:      :+:    :+:    */
+/*                                                   +:+ +:+         +:+      */
+/*   By: username <username@student.42tokyo.jp>    #+#  +:+       +#+         */
+/*                                               +#+#+#+#+#+   +#+            */
+/*   Created: 2026/07/05 21:37:49 by username         #+#    #+#              */
+/*   Updated: 2026/07/05 21:37:49 by username        ###   ########.fr        */
 /*                                                                            */
 /* ************************************************************************** */
 
 #include "codexion.h"
 
-t_queue	*newnode(t_coder *c, int index)
+t_queue	*newnode(t_coder *c, long long index)
 {
 	t_queue	*node;
 

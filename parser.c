@@ -5,8 +5,8 @@
 /*                                                   +:+ +:+         +:+      */
 /*   By: username <username@student.42tokyo.jp>    #+#  +:+       +#+         */
 /*                                               +#+#+#+#+#+   +#+            */
-/*   Created: 2026/06/27 22:22:51 by username         #+#    #+#              */
-/*   Updated: 2026/07/03 09:40:17 by username        ###   ########.fr        */
+/*   Created: 2026/07/05 21:37:45 by username         #+#    #+#              */
+/*   Updated: 2026/07/05 21:37:45 by username        ###   ########.fr        */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -78,7 +78,9 @@ static t_shared	*shared_init(int *data)
 	shared = malloc(sizeof(t_shared));
 	if (shared == NULL)
 		return (NULL);
-	if (pthread_mutex_init(&shared->p_safe, NULL) != 0)
+	if (pthread_mutex_init(&shared->p_safe, NULL) != 0
+		|| pthread_mutex_init(&shared->m_check, NULL) != 0
+		|| pthread_cond_init(&shared->global_cond, NULL) != 0)
 	{
 		free(shared);
 		return (NULL);
