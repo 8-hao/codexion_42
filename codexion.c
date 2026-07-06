@@ -12,7 +12,22 @@
 
 #include "codexion.h"
 
-void	*coder_func(void *args)
+int	debug_and_refactor(t_coder *c)
+{
+	if (is_stopped(c))
+		return (0);
+	safe_print("is debugging", c);
+	if (ft_smartsleep(c->shared->t_debug, c) == 0)
+		return (0);
+	if (is_stopped(c))
+		return (0);
+	safe_print("is refactoring", c);
+	if (ft_smartsleep(c->shared->t_refactor, c) == 0)
+		return (0);
+	return (1);
+}
+
+static void	*coder_func(void *args)
 {
 	t_coder	*c;
 	int		i;

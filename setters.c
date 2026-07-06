@@ -50,8 +50,10 @@ int	set_compile_count(t_coder *c, int i)
 	return (1);
 }
 
-void	lock_both_dongles(t_dongle *a, t_dongle *b)
+int	lock_both_dongles(t_dongle *a, t_dongle *b)
 {
+	if (a == b)
+		return (0);
 	if (a < b)
 	{
 		pthread_mutex_lock(&a->mutex_v);
@@ -61,5 +63,18 @@ void	lock_both_dongles(t_dongle *a, t_dongle *b)
 	{
 		pthread_mutex_lock(&b->mutex_v);
 		pthread_mutex_lock(&a->mutex_v);
+	}
+	return (1);
+}
+
+void	add_to_queue(t_dongle *d, t_coder *c)
+{
+	if (c->shared->n_coders == 1)
+		return ;
+	if (is_inqueue(d->headq, c))
+	{
+		add_back(&d->headq, newnode(c, set_queue_val(c, d)));
+		if (d->arb == 2)
+			sort_min(&d->headq);
 	}
 }

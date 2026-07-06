@@ -39,12 +39,16 @@ int	battle(t_coder *c)
 	t_dongle		*left;
 	t_dongle		*right;
 
+	if (c->shared->n_coders == 1)
+		return (1);
 	left = c->left_d;
 	right = c->right_d;
 	big = get_max_timespec(right->cooldown_time, left->cooldown_time);
-	while (timespec_less(set_time(0), big))
+	while (timespec_less(set_time(0), big) && !is_stopped(c))
 		pthread_cond_timedwait(&c->shared->global_cond,
 			&c->shared->m_check, &big);
+	if (is_stopped(c))
+		return (0);
 	if (right->is_available && left->is_available
 		&& left->headq != NULL && c->id == left->headq->c->id
 		&& right->headq != NULL && c->id == right->headq->c->id)
@@ -52,19 +56,10 @@ int	battle(t_coder *c)
 	return (0);
 }
 
-int	debug_and_refactor(t_coder *c)
+void	delete_coder_q(t_coder *c)
 {
-	if (is_stopped(c))
-		return (0);
-	safe_print("is debugging", c);
-	if (ft_smartsleep(c->shared->t_debug, c) == 0)
-		return (0);
-	if (is_stopped(c))
-		return (0);
-	safe_print("is refactoring", c);
-	if (ft_smartsleep(c->shared->t_refactor, c) == 0)
-		return (0);
-	return (1);
+	free(deletefirst(&c->left_d->headq));
+	free(deletefirst(&c->right_d->headq));
 }
 
 int	acquire_dongles(t_coder *c)
@@ -72,18 +67,8 @@ int	acquire_dongles(t_coder *c)
 	pthread_mutex_lock(&c->shared->m_check);
 	if (is_stopped(c))
 		return (pthread_mutex_unlock(&c->shared->m_check), 0);
-	if (is_inqueue(c->left_d->headq, c))
-	{
-		add_back(&c->left_d->headq, newnode(c, set_queue_val(c, c->left_d)));
-		if (c->left_d->arb == 2)
-			sort_min(&c->left_d->headq);
-	}
-	if (is_inqueue(c->right_d->headq, c))
-	{
-		add_back(&c->right_d->headq, newnode(c, set_queue_val(c, c->right_d)));
-		if (c->right_d->arb == 2)
-			sort_min(&c->right_d->headq);
-	}
+	add_to_queue(c->left_d, c);
+	add_to_queue(c->right_d, c);
 	while (!battle(c))
 	{
 		if (is_stopped(c))
@@ -92,13 +77,13 @@ int	acquire_dongles(t_coder *c)
 	}
 	if (is_stopped(c))
 		return (pthread_mutex_unlock(&c->shared->m_check), 0);
-	lock_both_dongles(c->left_d, c->right_d);
+	if (lock_both_dongles(c->left_d, c->right_d) == 0)
+		return (pthread_mutex_unlock(&c->shared->m_check), 0);
 	c->left_d->is_available = 0;
 	c->right_d->is_available = 0;
 	safe_print("has taken a dongle", c);
 	safe_print("has taken a dongle", c);
-	free(deletefirst(&c->left_d->headq));
-	free(deletefirst(&c->right_d->headq));
+	delete_coder_q(c);
 	pthread_mutex_unlock(&c->shared->m_check);
 	if (is_stopped(c))
 		return (pthread_mutex_unlock(&c->left_d->mutex_v),

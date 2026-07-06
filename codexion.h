@@ -98,7 +98,8 @@ void			threads_join(pthread_t *threads, int n, pthread_t id_monitor);
 void			monitor_init(t_monitor *m, t_dongle *dongles, t_coder *c);
 void			stop_wake_all(t_monitor *m);
 void			check_finished(t_monitor *m, int i, int *finished, int *c);
-void			lock_both_dongles(t_dongle *a, t_dongle *b);
+int				lock_both_dongles(t_dongle *a, t_dongle *b);
+void			add_to_queue(t_dongle *d, t_coder *c);
 
 int				set_compile_count(t_coder *c, int i);
 int				is_inqueue(t_queue *head, t_coder *c);
