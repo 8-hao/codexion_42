@@ -1,6 +1,6 @@
 CC = cc
 CFLAGS = -Wall -Wextra -Werror -pthread -g
-FILES = codexion.c parser.c time.c initializer.c helpers.c setters.c pqueue.c coder_actions.c monitor_actions.c
+FILES = src/codexion.c src/parser.c src/time.c src/initializer.c src/helpers.c src/setters.c src/pqueue.c src/coder_actions.c src/monitor_actions.c
 OBJ_F = $(FILES:.c=.o)
 
 
@@ -11,7 +11,7 @@ codexion: $(OBJ_F)
 
 
 clean:
-	@rm -f *.o
+	@rm -f $(OBJ_F)
 
 fclean: clean
 	rm -f codexion
