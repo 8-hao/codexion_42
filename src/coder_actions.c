@@ -45,8 +45,12 @@ int	battle(t_coder *c)
 	right = c->right_d;
 	big = get_max_timespec(right->cooldown_time, left->cooldown_time);
 	while (timespec_less(set_time(0), big) && !is_stopped(c))
+	{
+		if (is_stopped(c))
+			return (0);
 		pthread_cond_timedwait(&c->shared->global_cond,
 			&c->shared->m_check, &big);
+	}
 	if (is_stopped(c))
 		return (0);
 	if (right->is_available && left->is_available

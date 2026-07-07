@@ -40,11 +40,13 @@ void	stop_wake_all(t_monitor *m)
 	pthread_mutex_lock(&c.shared->m_check);
 	while (i < m->num_of_coders)
 	{
+		pthread_mutex_lock(&m->coders[i].safe_check);
 		m->coders[i].stop = 1;
+		pthread_mutex_unlock(&m->coders[i].safe_check);
 		i++;
 	}
-	pthread_mutex_unlock(&c.shared->m_check);
 	pthread_cond_broadcast(&c.shared->global_cond);
+	pthread_mutex_unlock(&c.shared->m_check);
 }
 
 void	check_finished(t_monitor *m, int i, int *finished, int *counter)
