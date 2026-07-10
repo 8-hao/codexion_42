@@ -77,6 +77,12 @@ Each coder is represented by its own thread, and coordination between them relie
 - [Mutex Vs Condition Variables](https://medium.com/@abhisheksagar_59776/mutex-vs-condition-variables-e0a15b2226a4)
 - [CS110 Lecture 15: Mutexes and Condition Variables](https://web.stanford.edu/class/cs110/lectures/cs110-win2122-lecture-15.pdf)
 
+### AI usage
+
+Claude AI was used to assist with the following tasks:
+- Understanding complex concepts such as mutexes, condition variables, and futexes.
+- Interpreting some Helgrind error messages.
+- Structuring this README
 
 
 
