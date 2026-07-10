@@ -1,12 +1,12 @@
 /* ************************************************************************** */
 /*                                                                            */
 /*                                                        :::      ::::::::   */
-/*   monitor_actions.c                                  :+:      :+:    :+:   */
+/*   time.c                                             :+:      :+:    :+:   */
 /*                                                    +:+ +:+         +:+     */
-/*   By: obakri <obakri@student.42.fr>              +#+  +:+       +#+        */
+/*   By: obakri <obakri@student.1337.ma>              +#+  +:+       +#+      */
 /*                                                +#+#+#+#+#+   +#+           */
-/*   Created: 2026/07/07 20:44:56 by obakri            #+#    #+#             */
-/*   Updated: 2026/07/07 20:45:00 by obakri           ###   ########.fr       */
+/*   Created: 2026/07/07 20:46:24 by obakri            #+#    #+#             */
+/*   Updated: 2026/07/07 20:46:28 by obakri           ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -32,12 +32,12 @@ int	check_burnout(t_monitor *m, int i)
 
 void	stop_wake_all(t_monitor *m)
 {
-	int		i;
-	t_coder	c;
+	t_shared	*shared;
+	int			i;
 
+	shared = m->coders[0].shared;
 	i = 0;
-	c = m->coders[0];
-	pthread_mutex_lock(&c.shared->m_check);
+	pthread_mutex_lock(&shared->m_check);
 	while (i < m->num_of_coders)
 	{
 		pthread_mutex_lock(&m->coders[i].safe_check);
@@ -45,8 +45,8 @@ void	stop_wake_all(t_monitor *m)
 		pthread_mutex_unlock(&m->coders[i].safe_check);
 		i++;
 	}
-	pthread_cond_broadcast(&c.shared->global_cond);
-	pthread_mutex_unlock(&c.shared->m_check);
+	pthread_cond_broadcast(&shared->global_cond);
+	pthread_mutex_unlock(&shared->m_check);
 }
 
 void	check_finished(t_monitor *m, int i, int *finished, int *counter)
